@@ -27,38 +27,38 @@ IFR             = $840D
 IER             = $840E
   
 RESET:
-                CLD                     ; Clear decimal arithmetic mode.
-                CLI                     ; clear interrupts
+    CLD                     ; Clear decimal arithmetic mode.
+    CLI                     ; clear interrupts
 
-                JSR     INIT_BUFFER     ; initialize rs-232 serial input buffer
+    JSR INIT_BUFFER     ; initialize rs-232 serial input buffer
 
-                ; initialize 65c22 VIA chip
-                lda     #$01            ; CA1 rising edge interrupt mode
-                sta     PCR
-                lda     #$82            ; enable CA1 interrupts
-                sta     IER
-                cli
+    ; initialize 65c22 VIA chip
+    lda #$01            ; CA1 rising edge interrupt mode
+    sta PCR
+    lda #$82            ; enable CA1 interrupts
+    sta IER
+    cli
 
-                lda #$00
-                sta DDRA                ; set PORTA pins to INPUT
-                sta KEYBOARD_FLAGS      ; clear all keyboard flags to 0
+    lda #$00
+    sta DDRA                ; set PORTA pins to INPUT
+    sta KEYBOARD_FLAGS      ; clear all keyboard flags to 0
 
-                lda #$ff        
-                sta DDRB                ; Set all pins on port B to OUTPUT
+    lda #$ff        
+    sta DDRB                ; Set all pins on port B to OUTPUT
 
-                ; initialize rs-232 serial pot
-                LDA     #$1F            ; 8-N-1, 19200 bps
-                STA     ACIA_CTRL
-                LDY     #$89            ; No parity, no echo, rx interrupts.
-                STY     ACIA_CMD
+    ; initialize rs-232 serial port
+    LDA #$1F            ; 8-N-1, 19200 bps
+    STA ACIA_CTRL
+    LDY #$89            ; No parity, no echo, rx interrupts.
+    STY ACIA_CMD
 
-                JMP     RESET_WOZMON    ; start running WOZMON!
+    JMP RESET_WOZMON    ; start running WOZMON!
 
 LOAD:
-                rts
+    rts
 
 SAVE:
-                rts
+    rts
 
 
 ; Input a character from the serial interface.
@@ -68,30 +68,29 @@ SAVE:
 ; Modifies: flags, A
 MONRDKEY:
 CHRIN:
-                phx
-                jsr     BUFFER_SIZE
-                beq     @no_keypressed
-                jsr     READ_BUFFER
-                jsr     CHROUT                  ; echo
-                pha
-                jsr     BUFFER_SIZE
-                cmp     #$B0
-                bcs     @mostly_full
-                ; lda     #$fe
-                ; and     PORTA
-                ; sta     PORTA
-                lda     #$7f
-                and     PORTB
-                sta     PORTB
+    phx
+    jsr BUFFER_SIZE
+    beq @no_keypressed
+    jsr READ_BUFFER
+    jsr CHROUT                  ; echo
+    pha
+    jsr BUFFER_SIZE
+    cmp #$B0
+    bcs @mostly_full
+    lda #$7f
+    and PORTB
+    sta PORTB
+
 @mostly_full:
-                pla
-                plx
-                sec
-                rts
+    pla
+    plx
+    sec
+    rts
+
 @no_keypressed:
-                plx
-                clc
-                rts
+    plx
+    clc
+    rts
 
 
 ; Output a character (from the A register) to the serial interface.
@@ -99,84 +98,83 @@ CHRIN:
 ; Modifies: flags
 MONCOUT:
 CHROUT:
-                pha
-                sta     ACIA_DATA
-                lda     #$FF
-@txdelay:       dec
-                bne     @txdelay
-                pla
-                rts
+    pha
+    sta ACIA_DATA
+    lda #$FF
+@txdelay:       
+    dec
+    bne @txdelay
+    pla
+    rts
 
 ; Initialize the circular input buffer
 ; Modifies: flags, A
 INIT_BUFFER:
-                lda INPUT_READ_PTR
-                sta INPUT_WRITE_PTR
-                rts
+    lda INPUT_READ_PTR
+    sta INPUT_WRITE_PTR
+    rts
 
 ; Write a character (from the A register) to the circular input buffer
 ; Modifies: flags, X
 WRITE_BUFFER:
-                ldx INPUT_WRITE_PTR
-                sta INPUT_BUFFER,x
-                inc INPUT_WRITE_PTR
-                rts
+    ldx INPUT_WRITE_PTR
+    sta INPUT_BUFFER,x
+    inc INPUT_WRITE_PTR
+    rts
 
 ; Read a character from the circular input buffer and put it in the A register
 ; Modifies: flags, A, X
 READ_BUFFER:
-                ldx INPUT_READ_PTR
-                lda INPUT_BUFFER,x
-                inc INPUT_READ_PTR
-                rts
+    ldx INPUT_READ_PTR
+    lda INPUT_BUFFER,x
+    inc INPUT_READ_PTR
+    rts
 
 ; Return (in A) the number of unread bytes in the circular input buffer
 ; Modifies: flags, A
 BUFFER_SIZE:
-                lda INPUT_WRITE_PTR
-                sec
-                sbc INPUT_READ_PTR
-                rts
+    lda INPUT_WRITE_PTR
+    sec
+    sbc INPUT_READ_PTR
+    rts
 
 ; Interrupt request handler
 IRQ_HANDLER:
-                pha
-                phx
+    pha
+    phx
 
-                lda     ACIA_STATUS
-                rol     A               ; shift A bit 7 into carry
-                bcc     @via_interrupt  ; bit 7 was 0, so not an ACIA interrupt
-                
-                ; it is an ACIA interrupt
-                lda     ACIA_DATA
-                jsr     WRITE_BUFFER
-                jsr     BUFFER_SIZE
-                cmp     #$F0
-                bcc     @exit_irq
-                lda     #$80
-                ora     PORTB
-                sta     PORTB
-                jmp     @exit_irq
+    lda ACIA_STATUS
+    rol A               ; shift A bit 7 into carry
+    bcc @via_interrupt  ; bit 7 was 0, so not an ACIA interrupt
+    
+    ; it is an ACIA interrupt
+    lda ACIA_DATA
+    jsr WRITE_BUFFER
+    jsr BUFFER_SIZE
+    cmp #$F0
+    bcc @exit_irq
+    lda #$80
+    ora PORTB
+    sta PORTB
+    jmp @exit_irq
 
 @via_interrupt:
-                lda     IFR
-                and     #%00000010
-                beq     @exit_irq
+    lda IFR
+    and #%00000010
+    beq @exit_irq
 
-                JSR     KEYBOARD_INPUT_HANDLER
-                ; lda     PORTA
-                ; jsr     lcd_print_char
+    JSR KEYBOARD_INPUT_HANDLER
 
 @exit_irq:
-                plx
-                pla
-                rti
+    plx
+    pla
+    rti
 
 .include "keyboard.s"
 .include "wozmon.s"
 
 .segment "RESETVEC"
-                .word   $0F00           ; NMI vector
-                .word   RESET           ; RESET vector
-                .word   IRQ_HANDLER     ; IRQ vector
+    .word $0F00           ; NMI vector
+    .word RESET           ; RESET vector
+    .word IRQ_HANDLER     ; IRQ vector
 
