@@ -116,25 +116,25 @@ KEYBOARD_INPUT_HANDLER:             ; called from INTB handler
     ; falls thru to @push_key_to_buffer!!!
 
 @push_key_to_buffer:
-    jsr     WRITE_BUFFER
-    jmp     @exit
+    jsr WRITE_BUFFER
+    jmp @exit
 
 @shift_up:
-    lda     KEYBOARD_FLAGS
-    eor     #SHIFT
-    sta     KEYBOARD_FLAGS
-    jmp     @exit
+    lda KEYBOARD_FLAGS
+    eor #SHIFT
+    sta KEYBOARD_FLAGS
+    jmp @exit
     
 @shift_down:
-    lda     KEYBOARD_FLAGS
-    ora     #SHIFT
-    sta     KEYBOARD_FLAGS
-    jmp     @exit
+    lda KEYBOARD_FLAGS
+    ora #SHIFT
+    sta KEYBOARD_FLAGS
+    jmp @exit
 
 @key_release:
-    lda     KEYBOARD_FLAGS
-    ora     #RELEASE
-    sta     KEYBOARD_FLAGS
+    lda KEYBOARD_FLAGS
+    ora #RELEASE
+    sta KEYBOARD_FLAGS
 
 @exit:
     plx
