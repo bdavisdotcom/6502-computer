@@ -1,19 +1,30 @@
 .setcpu "65C02"
 .debuginfo
-
 .zeropage
-                .org ZP_START0
+
+.org ZP_START0
+
 INPUT_READ_PTR:       .res 1
 INPUT_WRITE_PTR:      .res 1
 KEYBOARD_FLAGS:       .res 1
 
 .segment "INPUT_BUFFER"
+
 INPUT_BUFFER:   .res $100
 
 .segment "RAM"
 .segment "IO"
 .segment "BIOS"
 
+WELCOME_MSG:    .byte "Welcome to Brad's 6502", $0d, $0a, $00
+RAM_TEST_MSG:   .byte "Running RAM self test...", $0d, $0a, $00
+RAM_TEST_WRITE: .byte "RAM writes...", $0d, $0a, $00
+RAM_TEST_READ:  .byte "RAM reads...", $0d, $0a, $00
+RAM_TEST_FAIL:  .byte "FAIL!", $0d, $0a, $00
+RAM_TEST_PASS:  .byte "SUCCESS!", $0d, $0a, $00
+RUNNING_WOZMON:  .byte "Running Wozmon...", $0d, $0a, $00
+RAM_TEST_START = $0200
+RAM_TEST_END_HIGH_BYTE = $80
 ACIA_DATA       = $8000
 ACIA_STATUS     = $8001
 ACIA_CMD        = $8002
@@ -37,7 +48,7 @@ RESET:
     sta PCR
     lda #$82            ; enable CA1 interrupts
     sta IER
-    cli
+    ;cli
 
     lda #$00
     sta DDRA                ; set PORTA pins to INPUT
@@ -52,6 +63,113 @@ RESET:
     LDY #$89            ; No parity, no echo, rx interrupts.
     STY ACIA_CMD
 
+    lda #<WELCOME_MSG
+    sta $10
+    lda #>WELCOME_MSG
+    sta $11
+    jsr PRINT_STR
+
+    ; RAM SELF TEST
+    lda #<RAM_TEST_MSG
+    sta $10
+    lda #>RAM_TEST_MSG
+    sta $11
+    jsr PRINT_STR
+
+    sei
+
+.proc MemTestFill
+
+    ; load A with start address of memory test
+    ; start after stack page $0200
+    lda #<RAM_TEST_START
+    sta $10
+    lda #>RAM_TEST_START
+    sta $11
+
+    ;fill RAM with 10101010 pattern
+    lda #$aa
+@memory_addr_loop:
+    sta ($10)
+    inc $10
+    bne @memory_addr_loop
+@inc_memory_page:
+    inc $11
+    lda $11
+    cmp #RAM_TEST_END_HIGH_BYTE
+    beq @memory_write_done
+    lda #$aa
+    jmp @memory_addr_loop
+
+@memory_write_done:
+    lda #<RAM_TEST_WRITE
+    sta $10
+    lda #>RAM_TEST_WRITE
+    sta $11
+    jsr PRINT_STR
+.endproc
+
+.proc MemTestRead
+
+    lda #<RAM_TEST_READ
+    sta $10
+    lda #>RAM_TEST_READ
+    sta $11
+    jsr PRINT_STR
+
+    ; load A with start address of memory test
+    ; start after stack page $0200
+    lda #<RAM_TEST_START
+    sta $10
+    lda #>RAM_TEST_START
+    sta $11
+
+    ;read memory locations and compare with 10101010
+@memory_addr_loop:
+    lda ($10)
+    cmp #$aa
+    bne @memory_test_fail
+    inc $10
+    bne @memory_addr_loop
+@inc_memory_page:
+    inc $11
+    lda $11
+    cmp #RAM_TEST_END_HIGH_BYTE
+    beq @memory_test_done
+    jmp @memory_addr_loop
+
+@memory_test_fail:
+    lda #<RAM_TEST_FAIL
+    sta $10
+    lda #>RAM_TEST_FAIL
+    sta $11
+    jsr PRINT_STR
+    jmp AFTER_MEMTEST
+
+@memory_test_done:
+    lda #<RAM_TEST_PASS
+    sta $10
+    lda #>RAM_TEST_PASS
+    sta $11
+    jsr PRINT_STR
+.endproc
+
+AFTER_MEMTEST:
+
+    ldx #$00
+    ldy #$00
+    lda #$00
+    
+    cli
+
+    lda #<RUNNING_WOZMON
+    sta $10
+    lda #>RUNNING_WOZMON
+    sta $11
+    jsr PRINT_STR
+
+    ; load a with $1b so woz enters the loop correctly
+    lda #$1B
     JMP RESET_WOZMON    ; start running WOZMON!
 
 LOAD:
@@ -60,6 +178,20 @@ LOAD:
 SAVE:
     rts
 
+; asciiz string starting at address stored in $10, $11
+; string must be 255 bytes or less
+PRINT_STR:
+    phy
+    ldy #$00
+@print_str_loop:
+    lda ($10),y
+    beq @print_str_done
+    jsr CHROUT
+    iny
+    jmp @print_str_loop
+@print_str_done:
+    ply
+    rts
 
 ; Input a character from the serial interface.
 ; On return, carry flag indicates whether a key was pressed
