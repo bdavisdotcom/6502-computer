@@ -17,22 +17,15 @@ INPUT_BUFFER:   .res $100
 .segment "BIOS"
 
 WELCOME_MSG:    .byte "Welcome to Brad's 6502", $0d, $0a, $00
-RAM_TEST_MSG:   .byte "Running RAM self test...", $0d, $0a, $00
-RAM_TEST_WRITE: .byte "RAM writes...", $0d, $0a, $00
-RAM_TEST_READ:  .byte "RAM reads...", $0d, $0a, $00
-RAM_TEST_FAIL:  .byte "FAIL!", $0d, $0a, $00
-RAM_TEST_PASS:  .byte "SUCCESS!", $0d, $0a, $00
 RUNNING_WOZMON:  .byte "Running Wozmon...", $0d, $0a, $00
-RAM_TEST_START = $0200
-RAM_TEST_END_HIGH_BYTE = $80
 ACIA_DATA       = $8000
 ACIA_STATUS     = $8001
 ACIA_CMD        = $8002
 ACIA_CTRL       = $8003
-PORTA           = $8401
-DDRA            = $8403
 PORTB           = $8400
+PORTA           = $8401
 DDRB            = $8402
+DDRA            = $8403
 PCR             = $840C
 IFR             = $840D
 IER             = $840E
@@ -69,104 +62,14 @@ RESET:
     sta $11
     jsr PRINT_STR
 
-    ; RAM SELF TEST
-    lda #<RAM_TEST_MSG
-    sta $10
-    lda #>RAM_TEST_MSG
-    sta $11
-    jsr PRINT_STR
-
-    sei
-
-.proc MemTestFill
-
-    ; load A with start address of memory test
-    ; start after stack page $0200
-    lda #<RAM_TEST_START
-    sta $10
-    lda #>RAM_TEST_START
-    sta $11
-
-    ;fill RAM with 10101010 pattern
-    lda #$aa
-@memory_addr_loop:
-    sta ($10)
-    inc $10
-    bne @memory_addr_loop
-@inc_memory_page:
-    inc $11
-    lda $11
-    cmp #RAM_TEST_END_HIGH_BYTE
-    beq @memory_write_done
-    lda #$aa
-    jmp @memory_addr_loop
-
-@memory_write_done:
-    lda #<RAM_TEST_WRITE
-    sta $10
-    lda #>RAM_TEST_WRITE
-    sta $11
-    jsr PRINT_STR
-.endproc
-
-.proc MemTestRead
-
-    lda #<RAM_TEST_READ
-    sta $10
-    lda #>RAM_TEST_READ
-    sta $11
-    jsr PRINT_STR
-
-    ; load A with start address of memory test
-    ; start after stack page $0200
-    lda #<RAM_TEST_START
-    sta $10
-    lda #>RAM_TEST_START
-    sta $11
-
-    ;read memory locations and compare with 10101010
-@memory_addr_loop:
-    lda ($10)
-    cmp #$aa
-    bne @memory_test_fail
-    inc $10
-    bne @memory_addr_loop
-@inc_memory_page:
-    inc $11
-    lda $11
-    cmp #RAM_TEST_END_HIGH_BYTE
-    beq @memory_test_done
-    jmp @memory_addr_loop
-
-@memory_test_fail:
-    lda #<RAM_TEST_FAIL
-    sta $10
-    lda #>RAM_TEST_FAIL
-    sta $11
-    jsr PRINT_STR
-    jmp AFTER_MEMTEST
-
-@memory_test_done:
-    lda #<RAM_TEST_PASS
-    sta $10
-    lda #>RAM_TEST_PASS
-    sta $11
-    jsr PRINT_STR
-.endproc
-
-AFTER_MEMTEST:
-
-    ldx #$00
-    ldy #$00
-    lda #$00
-    
-    cli
 
     lda #<RUNNING_WOZMON
     sta $10
     lda #>RUNNING_WOZMON
     sta $11
     jsr PRINT_STR
+
+    jsr MEM_TEST
 
     ; load a with $1b so woz enters the loop correctly
     lda #$1B
@@ -302,6 +205,7 @@ IRQ_HANDLER:
     pla
     rti
 
+.include "mem_test.s"
 .include "keyboard.s"
 .include "wozmon.s"
 
@@ -309,4 +213,3 @@ IRQ_HANDLER:
     .word $0F00           ; NMI vector
     .word RESET           ; RESET vector
     .word IRQ_HANDLER     ; IRQ vector
-
