@@ -1,0 +1,53 @@
+Name        CRTC_INTERFACE;
+PartNo      00;
+Date        07/18/2025;
+Revision:   01;
+Designer:   George Foot;
+Company:    nunya;
+Assembly    none;
+Location    none;
+Device      g22v10;
+
+pin 1 = clk;
+pin 2 = clk_in;
+pin 3 = blank_in;
+pin 4 = vsync_in;
+pin 5 = hsync_in;
+
+pin 14 = !hsync_out; /* delayed inverted hsync */
+pin 15 = !vsync_out; /* delayed inverted vsync */
+pin 16 = !blank_out; /* delayed inverted blank */
+pin 17 = !SR_PE; /* shift register parallel load enable */
+pin 18 = clk_inv; /* inverted clock, asynchronous sr clock */
+pin 19 = clk_half;
+pin 20 = clk_quarter;
+pin 21 = !CCLK; /* 1/8 clock - MC68B45 cclk signal */
+
+Field C = [!CCLK, clk_quarter, clk_half];
+SequenceD C {
+    $REPEAT i = [0..7]
+        Present 'h'{i}
+            Next 'h'{(i+1) % 8};
+    $REPEND
+}
+
+/* shift register is clocked by the input clock (pixel clock)
+   after !CCLK goes low, the crtc changes address, hsync, vsync, blank, etc
+   addresses could take nearly 4 pixel clocks to settle, others longer
+
+   so we will reload the shift register at the last opportunity before !CCLK falls
+   and triggers a new cycle
+
+    note that due to the synchronous clocking, !SR_PE goes low on the cycle after
+    the one we specify here. and also, during blanking we want to just let all the bits
+    shift out and not get reloaded at all
+*/ 
+!SR_PE.d = !(C:6) # blank_in;
+
+/* delay and invert the sync and blank signals */
+!hsync_out.d = (!(C:6) & !hsync_out) # (C:6 & !hsync_in);
+!vsync_out.d = (!(C:6) & !vsync_out) # (C:6 & !vsync_in);
+!blank_out.d = (!(C:6) & !blank_out) # (C:6 & !blank_in);
+
+/* also provide an asynchronous inverted clk in case that's useful */
+clk_inv = !clk_in;

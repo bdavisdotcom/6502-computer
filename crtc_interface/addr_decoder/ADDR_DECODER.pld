@@ -1,0 +1,43 @@
+Name     ADDR_DECODER ;
+PartNo   01 ;
+Date     07/19/2025 ;
+Revision 01 ;
+Designer Brad Davis;
+Company  Nunya
+Assembly None;
+Location None;
+Device   g22V10;
+
+/* INPUTS */
+Pin 1  =  CLK;
+Pin 2  =  A15;
+Pin 3  =  A14;
+Pin 4  =  A13;
+Pin 5  =  A12;
+Pin 6  =  A11;
+Pin 7  =  A10;
+
+/*  Pin 12 is GND */
+
+/* OUTPUTS */
+Pin 14 = 
+Pin 15 = 
+Pin 16 = 
+Pin 17 = 
+Pin 18 = 
+Pin 19 = 
+Pin 20 = 
+Pin 21 = 
+Pin 22 = 
+Pin 23 = 
+/* Pin 24 is VCC */
+
+
+/*
+
+ CSACIA = !(ZEROPAGE  & A7 & A6 & A5 & !A4 & A3 & A2);
+ CSVIA  = !(ZEROPAGE  & A7 & A6 & A5 &  A4);
+ CSRAM  = !((!A15 & CSVIA & CSACIA) & CLK);
+ OERAM  = !(!A15 & CSVIA & CSACIA);
+ CSROM  = !A15;
+*/
