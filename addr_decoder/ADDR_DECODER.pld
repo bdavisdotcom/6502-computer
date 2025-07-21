@@ -1,0 +1,67 @@
+Name     ADDR_DECODER;
+PartNo   01;
+Date     07/19/2025;
+Revision 01;
+Designer Brad Davis;
+Company  Nunya;
+Assembly 01;
+Location Here;
+Device   g22V10;
+
+/*
+    CPU Address Decoder
+*/
+
+/* INPUTS */
+Pin 1  =  CLK;
+Pin 2  =  A15;
+Pin 3  =  A14;
+Pin 4  =  A13;
+Pin 5  =  A12;
+Pin 6  =  A11;
+Pin 7  =  A10;
+Pin 10 =  !ACIA_INTERRUPT;
+Pin 11 =  !VIA_INTERRUPT;
+
+/*  Pin 12 is GND */
+
+/* OUTPUTS */
+
+Pin 14 = CLK_INVERT;
+Pin 15 = !CPU_INTERRUPT;
+
+/*
+    Pin 16 UNUSED
+*/
+
+Pin 17 = !VIA0_CE;
+Pin 18 = !COLOR_RAM_CE;
+Pin 19 = !CHAR_RAM_CE;
+Pin 20 = !CRTC_CE;
+Pin 21 = !ACIA_CE;
+Pin 22 = !RAM_CE;
+Pin 23 = !ROM_CE;
+
+/* Pin 24 is VCC */
+
+/*
+    ROM $C000
+    ACIA $8000
+    VIA $8400
+    CRTC $8800    
+    CHAR_RAM $9000
+    COLOR_RAM $9800
+
+    RAM $0000 - $7FFF
+*/
+
+!ROM_CE =      A15 & A14;
+!RAM_CE =     !A15 & CLK;
+!ACIA_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10;
+!VIA0_CE =     A15 & !A14 & !A13 & !A12 & !A11 & A10;
+!CRTC_CE =     A15 & !A14 & !A13 & !A12 & A11 & !A10;
+!CHAR_RAM_CE = A15 & !A14 & !A13 & !A12 & A11 & A10;
+!COLOR_RAM_CE= A15 & !A14 & !A13 & A12 & !A11 & A10;
+
+CLK_INVERT = !CLK;
+!CPU_INTERRUPT = !(ACIA_INTERRUPT & VIA_INTERRUPT);
