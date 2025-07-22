@@ -20,6 +20,8 @@ Pin 4  =  A13;
 Pin 5  =  A12;
 Pin 6  =  A11;
 Pin 7  =  A10;
+Pin 8  =  A09;
+Pin 9  =  A08;
 Pin 10 =  ACIA_INTERRUPT;
 Pin 11 =  VIA_INTERRUPT;
 
@@ -45,23 +47,25 @@ Pin 23 = !ROM_CE;
 /* Pin 24 is VCC */
 
 /*
-    ROM $C000
+    ROM $A000 - $FFFF
     ACIA $8000
-    VIA $8400
-    CRTC $8800    
-    CHAR_RAM $9000
-    COLOR_RAM $9800
+    VIA0 $8100
+    VIA1 $8200 (not used yet)
+    VIA2 $8300 (not used yet)
+    CRTC $8700    
+    CHAR_RAM $8800
+    COLOR_RAM $9000
 
     RAM $0000 - $7FFF
 */
 
-ROM_CE =      A15 & A14;
+ROM_CE =      (A15 & A14) # (A15 & !A14 & A13);
 RAM_CE =     !A15 & CLK;
-ACIA_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10;
-VIA0_CE =     A15 & !A14 & !A13 & !A12 & !A11 & A10;
-CRTC_CE =     A15 & !A14 & !A13 & !A12 & A11 & !A10;
-CHAR_RAM_CE = A15 & !A14 & !A13 & !A12 & A11 & A10;
-COLOR_RAM_CE= A15 & !A14 & !A13 & A12 & !A11 & A10;
+ACIA_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08;
+VIA0_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08;
+CRTC_CE =     A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08;
+CHAR_RAM_CE = A15 & !A14 & !A13 & !A12 & A11;
+COLOR_RAM_CE= A15 & !A14 & !A13 & A12;
 
 CLK_INVERT = !CLK;
 CPU_INTERRUPT = !(ACIA_INTERRUPT & VIA_INTERRUPT);
