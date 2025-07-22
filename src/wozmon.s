@@ -13,6 +13,8 @@ MODE            = $2B                   ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
 IN              = $0200                 ; Input buffer
 
 RESET_WOZMON:
+                ; load a with $1b so woz enters the loop correctly
+                lda #$1B
 NOTCR:
                 CMP     #$08            ; Backspace key?
                 BEQ     BACKSPACE       ; Yes.

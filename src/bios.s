@@ -71,8 +71,6 @@ RESET:
 
     jsr MEM_TEST
 
-    ; load a with $1b so woz enters the loop correctly
-    lda #$1B
     JMP RESET_WOZMON    ; start running WOZMON!
 
 LOAD:
