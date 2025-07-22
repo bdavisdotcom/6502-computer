@@ -22,13 +22,13 @@ ACIA_DATA       = $8000
 ACIA_STATUS     = $8001
 ACIA_CMD        = $8002
 ACIA_CTRL       = $8003
-PORTB           = $8400
-PORTA           = $8401
-DDRB            = $8402
-DDRA            = $8403
-PCR             = $840C
-IFR             = $840D
-IER             = $840E
+PORTB           = $8100
+PORTA           = $8101
+DDRB            = $8102
+DDRA            = $8103
+PCR             = $810C
+IFR             = $810D
+IER             = $810E
   
 RESET:
     CLD                     ; Clear decimal arithmetic mode.
