@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Jul 19 08:12:09 2025
+Created         Thu Jul 24 08:49:00 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -31,13 +31,13 @@ C =>
     CCLK
   # !clk_quarter
   # clk_half
-  # blank_in
+  # display_enable_in
 
 !blank_out.d  =>
     CCLK & !blank_out
   # !blank_out & !clk_quarter
   # !blank_out & clk_half
-  # !CCLK & !blank_in & !clk_half & clk_quarter
+  # !CCLK & !clk_half & clk_quarter & !display_enable_in
 
 clk_half.d  =>
     !clk_half
@@ -99,7 +99,6 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
  !  CCLK                d       21       X        3       12      1     
  !  SR_PE                       17       V        -       -       -     
  !  SR_PE               d       17       X        4       14      1     
-    blank_in                    3        V        -       -       -     
  !  blank_out                   16       V        -       -       -     
  !  blank_out           d       16       X        4       12      1     
     clk                         1        V        -       -       -     
@@ -109,6 +108,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     clk_inv                     18       V        1       16      1     
     clk_quarter                 20       V        -       -       -     
     clk_quarter         d       20       X        2       14      1     
+    display_enable_in           3        V        -       -       -     
     hsync_in                    5        V        -       -       -     
  !  hsync_out                   14       V        -       -       -     
  !  hsync_out           d       14       X        4       8       1     
@@ -294,7 +294,7 @@ LEGEND    X : fuse not blown
                               |CRTC_INTERFACE|
                       clk x---|1           24|---x Vcc                      
                    clk_in x---|2           23|---x                          
-                 blank_in x---|3           22|---x                          
+        display_enable_in x---|3           22|---x                          
                  vsync_in x---|4           21|---x !CCLK                    
                  hsync_in x---|5           20|---x clk_quarter              
                           x---|6           19|---x clk_half                 
