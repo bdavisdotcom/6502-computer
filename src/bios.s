@@ -17,6 +17,7 @@ INPUT_BUFFER:   .res $100
 .segment "BIOS"
 
 WELCOME_MSG:    .byte "Welcome to Brad's 6502", $0d, $0a, $00
+INIT_CRTC_MSG:    .byte "Initializing CRTC", $0d, $0a, $00
 RUNNING_WOZMON:  .byte "Running Wozmon...", $0d, $0a, $00
 ACIA_DATA       = $8000
 ACIA_STATUS     = $8001
@@ -62,6 +63,17 @@ RESET:
     sta $11
     jsr PRINT_STR
 
+    ; perform RAM test
+    jsr MEM_TEST
+
+    lda #<INIT_CRTC_MSG
+    sta $10
+    lda #>INIT_CRTC_MSG
+    sta $11
+    jsr PRINT_STR
+
+    ; initialize crtc / display
+    jsr INIT_CRTC
 
     lda #<RUNNING_WOZMON
     sta $10
@@ -69,8 +81,7 @@ RESET:
     sta $11
     jsr PRINT_STR
 
-    jsr MEM_TEST
-
+    ; start wozmon
     JMP RESET_WOZMON    ; start running WOZMON!
 
 LOAD:
@@ -204,6 +215,7 @@ IRQ_HANDLER:
     rti
 
 .include "mem_test.s"
+.include "crtc.s"
 .include "keyboard.s"
 .include "wozmon.s"
 

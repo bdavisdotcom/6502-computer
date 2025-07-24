@@ -10,13 +10,13 @@ Device      g22v10;
 
 pin 1 = clk;
 pin 2 = clk_in;
-pin 3 = blank_in;
+pin 3 = display_enable_in;
 pin 4 = vsync_in;
 pin 5 = hsync_in;
 
 pin 14 = !hsync_out; /* delayed inverted hsync */
 pin 15 = !vsync_out; /* delayed inverted vsync */
-pin 16 = !blank_out; /* delayed inverted blank */
+pin 16 = !blank_out; /* delayed  display_enable_in */
 pin 17 = !SR_PE; /* shift register parallel load enable */
 pin 18 = clk_inv; /* inverted clock, asynchronous sr clock */
 pin 19 = clk_half;
@@ -31,7 +31,11 @@ SequenceD C {
     $REPEND
 }
 
-/* shift register is clocked by the input clock (pixel clock)
+/* 
+    display_enable_in is HIGH when display is enabled for signal
+    and LOW when it's in the blanking region.This is how MC6845 works
+
+    shift register is clocked by the input clock (pixel clock)
    after !CCLK goes low, the crtc changes address, hsync, vsync, blank, etc
    addresses could take nearly 4 pixel clocks to settle, others longer
 
@@ -42,12 +46,12 @@ SequenceD C {
     the one we specify here. and also, during blanking we want to just let all the bits
     shift out and not get reloaded at all
 */ 
-!SR_PE.d = !(C:6) # blank_in;
+!SR_PE.d = !(C:6) # display_enable_in;
 
 /* delay and invert the sync and blank signals */
 !hsync_out.d = (!(C:6) & !hsync_out) # (C:6 & !hsync_in);
 !vsync_out.d = (!(C:6) & !vsync_out) # (C:6 & !vsync_in);
-!blank_out.d = (!(C:6) & !blank_out) # (C:6 & !blank_in);
+!blank_out.d = (!(C:6) & !blank_out) # (C:6 & !display_enable_in);
 
 /* also provide an asynchronous inverted clk in case that's useful */
 clk_inv = !clk_in;
