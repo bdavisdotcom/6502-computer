@@ -15,7 +15,7 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $63, $50, $52, $0c, $1f, $0d, $1e, $1f, $00, $0f, $00, $00, $00, $00, $00, $00
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1f, $00, $0f, $00, $00, $00, $00, $00, $00
 
 CRTC_ADDRESS = $8700
 CRTC_REGISTER = $8701

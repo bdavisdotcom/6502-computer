@@ -21,13 +21,14 @@ pin 17 = !SR_PE; /* shift register parallel load enable */
 pin 18 = clk_inv; /* inverted clock, asynchronous sr clock */
 pin 19 = clk_half;
 pin 20 = clk_quarter;
-pin 21 = !CCLK; /* 1/8 clock - MC68B45 cclk signal */
+pin 21 = !CCLK; /* 1/16 clock - MC68B45 cclk signal */
+pin 23 = clk_eighth;
 
-Field C = [!CCLK, clk_quarter, clk_half];
+Field C = [!CCLK, clk_eighth, clk_quarter, clk_half];
 SequenceD C {
-    $REPEAT i = [0..7]
+    $REPEAT i = [0..15]
         Present 'h'{i}
-            Next 'h'{(i+1) % 8};
+            Next 'h'{(i+1) % 16};
     $REPEND
 }
 
@@ -46,12 +47,12 @@ SequenceD C {
     the one we specify here. and also, during blanking we want to just let all the bits
     shift out and not get reloaded at all
 */ 
-!SR_PE.d = !(C:6) # !display_enable_in;
+!SR_PE.d = !(C:E) # !display_enable_in;
 
 /* delay and invert the sync and blank signals */
-!hsync_out.d = (!(C:6) & !hsync_out) # (C:6 & !hsync_in);
-!vsync_out.d = (!(C:6) & !vsync_out) # (C:6 & !vsync_in);
-!blank_out.d = (!(C:6) & !blank_out) # (C:6 & !display_enable_in);
+!hsync_out.d = (!(C:E) & !hsync_out) # (C:E & !hsync_in);
+!vsync_out.d = (!(C:E) & !vsync_out) # (C:E & !vsync_in);
+!blank_out.d = (!(C:E) & !blank_out) # (C:E & !display_enable_in);
 
 /* also provide an asynchronous inverted clk in case that's useful */
 clk_inv = !clk_in;

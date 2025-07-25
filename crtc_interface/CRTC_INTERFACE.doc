@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Thu Jul 24 15:44:10 2025
+Created         Fri Jul 25 07:34:52 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -20,24 +20,32 @@ Location        none
 ===============================================================================
 
 C =>
-    !CCLK , clk_quarter , clk_half
+    !CCLK , clk_eighth , clk_quarter , clk_half
 
 !CCLK.d  =>
-    !CCLK & !clk_half & clk_quarter
-  # CCLK & clk_half & clk_quarter
-  # !CCLK & !clk_quarter
+    !CCLK & clk_eighth & !clk_half & clk_quarter
+  # CCLK & clk_eighth & clk_half & clk_quarter
+  # !CCLK & clk_eighth & !clk_quarter
+  # !CCLK & !clk_eighth
 
 !SR_PE.d  =>
     CCLK
+  # !clk_eighth
   # !clk_quarter
   # clk_half
   # !display_enable_in
 
 !blank_out.d  =>
     CCLK & !blank_out
+  # !blank_out & !clk_eighth
   # !blank_out & !clk_quarter
   # !blank_out & clk_half
-  # !CCLK & !clk_half & clk_quarter & !display_enable_in
+  # !CCLK & clk_eighth & !clk_half & clk_quarter & !display_enable_in
+
+clk_eighth.d  =>
+    clk_eighth & !clk_half & clk_quarter
+  # !clk_eighth & clk_half & clk_quarter
+  # clk_eighth & !clk_quarter
 
 clk_half.d  =>
     !clk_half
@@ -51,15 +59,17 @@ clk_quarter.d  =>
 
 !hsync_out.d  =>
     CCLK & !hsync_out
+  # !clk_eighth & !hsync_out
   # !clk_quarter & !hsync_out
   # clk_half & !hsync_out
-  # !CCLK & !clk_half & clk_quarter & !hsync_in
+  # !CCLK & clk_eighth & !clk_half & clk_quarter & !hsync_in
 
 !vsync_out.d  =>
     CCLK & !vsync_out
+  # !clk_eighth & !vsync_out
   # !clk_quarter & !vsync_out
   # clk_half & !vsync_out
-  # !CCLK & !clk_half & clk_quarter & !vsync_in
+  # !CCLK & clk_eighth & !clk_half & clk_quarter & !vsync_in
 
 CCLK.oe  =>
     1 
@@ -68,6 +78,9 @@ SR_PE.oe  =>
     1 
 
 blank_out.oe  =>
+    1 
+
+clk_eighth.oe  =>
     1 
 
 clk_half.oe  =>
@@ -96,12 +109,14 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
 
     C                           0        F        -       -       -     
  !  CCLK                        21       V        -       -       -     
- !  CCLK                d       21       X        3       12      1     
+ !  CCLK                d       21       X        4       12      1     
  !  SR_PE                       17       V        -       -       -     
- !  SR_PE               d       17       X        4       14      1     
+ !  SR_PE               d       17       X        5       14      1     
  !  blank_out                   16       V        -       -       -     
- !  blank_out           d       16       X        4       12      1     
+ !  blank_out           d       16       X        5       12      1     
     clk                         1        V        -       -       -     
+    clk_eighth                  23       V        -       -       -     
+    clk_eighth          d       23       X        3       8       1     
     clk_half                    19       V        -       -       -     
     clk_half            d       19       X        1       16      1     
     clk_in                      2        V        -       -       -     
@@ -111,13 +126,14 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     display_enable_in           3        V        -       -       -     
     hsync_in                    5        V        -       -       -     
  !  hsync_out                   14       V        -       -       -     
- !  hsync_out           d       14       X        4       8       1     
+ !  hsync_out           d       14       X        5       8       1     
     vsync_in                    4        V        -       -       -     
  !  vsync_out                   15       V        -       -       -     
- !  vsync_out           d       15       X        4       10      1     
+ !  vsync_out           d       15       X        5       10      1     
     CCLK                oe      21       D        1       1       0     
     SR_PE               oe      17       D        1       1       0     
     blank_out           oe      16       D        1       1       0     
+    clk_eighth          oe      23       D        1       1       0     
     clk_half            oe      19       D        1       1       0     
     clk_inv             oe      18       D        1       1       0     
     clk_quarter         oe      20       D        1       1       0     
@@ -141,11 +157,11 @@ SP
 AR 
  00000 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 
-Pin #23  05808 Mode  xx 
- 00044 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00088 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00132 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00176 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #23  05808 Mode  -x 
+ 00044 -------------------------------------------- 
+ 00088 ---x-----------x--x------------------------- 
+ 00132 --x------------x---x------------------------ 
+ 00176 ---x----------x----------------------------- 
  00220 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00264 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00308 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -165,10 +181,10 @@ Pin #22  05810 Mode  xx
  00880 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #21  05812 Mode  -x 
  00924 -------------------------------------------- 
- 00968 -----------x---x--x------------------------- 
- 01012 ----------x----x---x------------------------ 
- 01056 -----------x--x----------------------------- 
- 01100 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00968 ---x-------x---x--x------------------------- 
+ 01012 ---x------x----x---x------------------------ 
+ 01056 ---x-------x--x----------------------------- 
+ 01100 --x--------x-------------------------------- 
  01144 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01188 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01232 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -232,10 +248,10 @@ Pin #18  05818 Mode  --
 Pin #17  05820 Mode  -x 
  03652 -------------------------------------------- 
  03696 ----------x--------------------------------- 
- 03740 --------------x----------------------------- 
- 03784 -------------------x------------------------ 
- 03828 ---------x---------------------------------- 
- 03872 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 03740 --x----------------------------------------- 
+ 03784 --------------x----------------------------- 
+ 03828 -------------------x------------------------ 
+ 03872 ---------x---------------------------------- 
  03916 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03960 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04004 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -248,10 +264,10 @@ Pin #17  05820 Mode  -x
 Pin #16  05822 Mode  -x 
  04312 -------------------------------------------- 
  04356 ----------x--------------------x------------ 
- 04400 --------------x----------------x------------ 
- 04444 -------------------x-----------x------------ 
- 04488 ---------x-x---x--x------------------------- 
- 04532 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04400 --x----------------------------x------------ 
+ 04444 --------------x----------------x------------ 
+ 04488 -------------------x-----------x------------ 
+ 04532 ---x-----x-x---x--x------------------------- 
  04576 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04620 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04664 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -262,10 +278,10 @@ Pin #16  05822 Mode  -x
 Pin #15  05824 Mode  -x 
  04884 -------------------------------------------- 
  04928 ----------x------------------------x-------- 
- 04972 --------------x--------------------x-------- 
- 05016 -------------------x---------------x-------- 
- 05060 -----------x-x-x--x------------------------- 
- 05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04972 --x--------------------------------x-------- 
+ 05016 --------------x--------------------x-------- 
+ 05060 -------------------x---------------x-------- 
+ 05104 ---x-------x-x-x--x------------------------- 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05236 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -274,10 +290,10 @@ Pin #15  05824 Mode  -x
 Pin #14  05826 Mode  -x 
  05368 -------------------------------------------- 
  05412 ----------x----------------------------x---- 
- 05456 --------------x------------------------x---- 
- 05500 -------------------x-------------------x---- 
- 05544 -----------x---x-xx------------------------- 
- 05588 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05456 --x------------------------------------x---- 
+ 05500 --------------x------------------------x---- 
+ 05544 -------------------x-------------------x---- 
+ 05588 ---x-------x---x-xx------------------------- 
  05632 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05676 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05720 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -293,7 +309,7 @@ LEGEND    X : fuse not blown
                                ______________
                               |CRTC_INTERFACE|
                       clk x---|1           24|---x Vcc                      
-                   clk_in x---|2           23|---x                          
+                   clk_in x---|2           23|---x clk_eighth               
         display_enable_in x---|3           22|---x                          
                  vsync_in x---|4           21|---x !CCLK                    
                  hsync_in x---|5           20|---x clk_quarter              
