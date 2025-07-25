@@ -5,9 +5,9 @@ from PIL import Image, ImageDraw
 image=Image.new("1",[256,256])
 
 # TRS_80 Model I
-fontfile = open("IBM_VGA_8x8.bin", "rb").read()
-ROM_ROWS=8
-NUM_CHARS=128
+fontfile = open("IBM_VGA_8x16.bin", "rb").read()
+ROM_ROWS=16
+NUM_CHARS=256
 OUTFILE="ibm.png"
 
 # TRS_80 Model III ; this ROM has twice as many characters

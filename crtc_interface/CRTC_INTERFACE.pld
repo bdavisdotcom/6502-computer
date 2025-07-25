@@ -46,7 +46,7 @@ SequenceD C {
     the one we specify here. and also, during blanking we want to just let all the bits
     shift out and not get reloaded at all
 */ 
-!SR_PE.d = !(C:6) # display_enable_in;
+!SR_PE.d = !(C:6) # !display_enable_in;
 
 /* delay and invert the sync and blank signals */
 !hsync_out.d = (!(C:6) & !hsync_out) # (C:6 & !hsync_in);

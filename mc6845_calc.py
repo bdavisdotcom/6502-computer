@@ -1,14 +1,14 @@
 # 80 by 25
 characterWidth          = 8
-characterHeight         = 8
-nrOfTerminalRows        = 25
+characterHeight         = 16
+nrOfTerminalRows        = 30
 emptyScanLines          = 0
 totalPixelsPerLine      = 800
 activePixels            = 640
 totalLines              = 525
 activeLines             = 480
-cursorStartAddress      = 13
-cursorEndAddress        = 15
+cursorStartAddress      = 0
+cursorEndAddress        = 0
 cursorType              = 0xC0  # Slow blinking cursor
 dotClock                = 25175000
 
