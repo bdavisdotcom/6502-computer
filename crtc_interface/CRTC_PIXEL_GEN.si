@@ -1,0 +1,25 @@
+Name     CRTC_PIXEL_GEN;
+PartNo   00;
+Date     07/18/2025;
+Revision 01;
+Designer Brad Davis;
+Company  nunya;
+Assembly none;
+Location none;
+Device   g22v10;
+
+/*
+CPU Address Decoder
+*/
+
+ORDER: PIXEL_IN, %1, C0, C1, C2, C3, C4, C5, C6, C7, %1, D_ENABLE_IN, %1, RED, GREEN, BLUE, INTENSITY; 
+
+
+VECTORS:
+0000000000****
+1111111111****
+1000000001****
+1100001001****
+0100001001****
+1001101001****
+1001101000****
