@@ -9,7 +9,7 @@ Location    none;
 Device      g22v10;
 
 pin 1 = clk; /* 25.175 mhz */
-pin 2 = clk_in; /* 25.175 mhz unnecesary now, but still here */
+
 pin 3 = display_enable_in;
 pin 4 = vsync_in;
 pin 5 = hsync_in;
@@ -18,13 +18,13 @@ pin 14 = !hsync_out; /* delayed inverted hsync */
 pin 15 = !vsync_out; /* delayed inverted vsync */
 pin 16 = !blank_out; /* delayed  display_enable_in */
 pin 17 = !SR_PE; /* shift register parallel load enable */
-pin 18 = clk_inv; /* inverted 1/2 clock (!clk_half, 12.5mhz), asynchronous sr clock */
-pin 19 = clk_half; /* noninverted 1/2 clock (12.5mhz) */
+pin 18 = pixel_clk; /* 1/2 clk */
+
 pin 20 = clk_quarter; /* 6mhz */
 pin 21 = !CCLK; /* 1/16 clock - MC68B45 cclk signal 1.5xx mhz */
 pin 23 = clk_eighth; /* 3.xx mhz */
 
-Field C = [!CCLK, clk_eighth, clk_quarter, clk_half];
+Field C = [!CCLK, clk_eighth, clk_quarter, pixel_clk];
 SequenceD C {
     $REPEAT i = [0..15]
         Present 'h'{i}
@@ -47,12 +47,9 @@ SequenceD C {
     the one we specify here. and also, during blanking we want to just let all the bits
     shift out and not get reloaded at all
 */ 
-!SR_PE.d = !(C:E) # !display_enable_in;
+!SR_PE = !(C:E) # !display_enable_in;
 
 /* delay and invert the sync and blank signals */
-!hsync_out.d = (!(C:E) & !hsync_out) # (C:E & !hsync_in);
-!vsync_out.d = (!(C:E) & !vsync_out) # (C:E & !vsync_in);
-!blank_out.d = (!(C:E) & !blank_out) # (C:E & !display_enable_in);
-
-/* also provide an asynchronous inverted clk in case that's useful */
-clk_inv = !clk_half;
+!hsync_out = (!(C:E) & !hsync_out) # (C:E & !hsync_in);
+!vsync_out = (!(C:E) & !vsync_out) # (C:E & !vsync_in);
+!blank_out = (!(C:E) & !blank_out) # (C:E & !display_enable_in);
