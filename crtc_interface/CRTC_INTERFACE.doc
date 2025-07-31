@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Fri Jul 25 07:34:52 2025
+Created         Thu Jul 31 13:57:53 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -51,7 +51,7 @@ clk_half.d  =>
     !clk_half
 
 clk_inv =>
-    !clk_in
+    !clk_half
 
 clk_quarter.d  =>
     !clk_half & clk_quarter
@@ -229,7 +229,7 @@ Pin #19  05816 Mode  -x
  02860 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #18  05818 Mode  -- 
  02904 -------------------------------------------- 
- 02948 -----x-------------------------------------- 
+ 02948 ------------------x------------------------- 
  02992 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03036 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03080 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

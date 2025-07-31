@@ -34,7 +34,8 @@ Pin 15 = BLUE; /* blue bit */
 Pin 16 = GREEN; /* green bit */
 Pin 17 = RED; /* red bit */
 
-RED = D_ENABLE_IN & ((PIXEL_IN & C0) # (!PIXEL_IN & C4));
-GREEN = D_ENABLE_IN & ((PIXEL_IN & C1) # (!PIXEL_IN & C5));
-BLUE = D_ENABLE_IN & ((PIXEL_IN & C2) # (!PIXEL_IN & C6));
-INTENSITY = D_ENABLE_IN & ((PIXEL_IN & C3) # (!PIXEL_IN & C7));
+/* inverting D_ENABLE_IN for now, since the crtc interface is inverting it unnecessarily */
+RED = !D_ENABLE_IN & ((PIXEL_IN & C0) # (!PIXEL_IN & C4));
+GREEN = !D_ENABLE_IN & ((PIXEL_IN & C1) # (!PIXEL_IN & C5));
+BLUE = !D_ENABLE_IN & ((PIXEL_IN & C2) # (!PIXEL_IN & C6));
+INTENSITY = !D_ENABLE_IN & ((PIXEL_IN & C3) # (!PIXEL_IN & C7));

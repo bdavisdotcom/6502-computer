@@ -8,8 +8,8 @@ Assembly    none;
 Location    none;
 Device      g22v10;
 
-pin 1 = clk;
-pin 2 = clk_in;
+pin 1 = clk; /* 25.175 mhz */
+pin 2 = clk_in; /* 25.175 mhz unnecesary now, but still here */
 pin 3 = display_enable_in;
 pin 4 = vsync_in;
 pin 5 = hsync_in;
@@ -18,11 +18,11 @@ pin 14 = !hsync_out; /* delayed inverted hsync */
 pin 15 = !vsync_out; /* delayed inverted vsync */
 pin 16 = !blank_out; /* delayed  display_enable_in */
 pin 17 = !SR_PE; /* shift register parallel load enable */
-pin 18 = clk_inv; /* inverted clock, asynchronous sr clock */
-pin 19 = clk_half;
-pin 20 = clk_quarter;
-pin 21 = !CCLK; /* 1/16 clock - MC68B45 cclk signal */
-pin 23 = clk_eighth;
+pin 18 = clk_inv; /* inverted 1/2 clock (!clk_half, 12.5mhz), asynchronous sr clock */
+pin 19 = clk_half; /* noninverted 1/2 clock (12.5mhz) */
+pin 20 = clk_quarter; /* 6mhz */
+pin 21 = !CCLK; /* 1/16 clock - MC68B45 cclk signal 1.5xx mhz */
+pin 23 = clk_eighth; /* 3.xx mhz */
 
 Field C = [!CCLK, clk_eighth, clk_quarter, clk_half];
 SequenceD C {
@@ -55,4 +55,4 @@ SequenceD C {
 !blank_out.d = (!(C:E) & !blank_out) # (C:E & !display_enable_in);
 
 /* also provide an asynchronous inverted clk in case that's useful */
-clk_inv = !clk_in;
+clk_inv = !clk_half;
