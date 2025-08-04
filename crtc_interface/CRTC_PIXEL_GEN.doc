@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Wed Jul 30 08:05:26 2025
+Created         Fri Aug 01 06:23:55 2025
 Name            CRTC_PIXEL_GEN
 Partno          00
 Revision        01
@@ -20,20 +20,20 @@ Location        none
 ===============================================================================
 
 BLUE =>
-    C6 & !D_ENABLE_IN & !PIXEL_IN
-  # C2 & !D_ENABLE_IN & PIXEL_IN
+    !BLANKING_INTERVAL_IN & C6 & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C2 & PIXEL_IN
 
 GREEN =>
-    C5 & !D_ENABLE_IN & !PIXEL_IN
-  # C1 & !D_ENABLE_IN & PIXEL_IN
+    !BLANKING_INTERVAL_IN & C5 & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C1 & PIXEL_IN
 
 INTENSITY =>
-    C7 & !D_ENABLE_IN & !PIXEL_IN
-  # C3 & !D_ENABLE_IN & PIXEL_IN
+    !BLANKING_INTERVAL_IN & C7 & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C3 & PIXEL_IN
 
 RED =>
-    C4 & !D_ENABLE_IN & !PIXEL_IN
-  # C0 & !D_ENABLE_IN & PIXEL_IN
+    !BLANKING_INTERVAL_IN & C4 & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C0 & PIXEL_IN
 
 BLUE.oe  =>
     1 
@@ -56,6 +56,7 @@ Pin Variable                                    Pterms   Max     Min
 Pol   Name              Ext     Pin     Type     Used   Pterms  Level   
 --- --------            ---     ---     ----    ------  ------  -----   
 
+    BLANKING_INTERVAL_IN        13       V        -       -       -     
     BLUE                        15       V        2       10      1     
     C0                          4        V        -       -       -     
     C1                          5        V        -       -       -     
@@ -65,10 +66,10 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     C5                          9        V        -       -       -     
     C6                          10       V        -       -       -     
     C7                          11       V        -       -       -     
-    D_ENABLE_IN                 13       V        -       -       -     
     GREEN                       16       V        2       12      1     
     INTENSITY                   14       V        2       8       1     
-    PIXEL_IN                    1        V        -       -       -     
+    PIXEL_CLK                   1        V        -       -       -     
+    PIXEL_IN                    2        V        -       -       -     
     RED                         17       V        2       14      1     
     BLUE                oe      15       D        1       1       0     
     GREEN               oe      16       D        1       1       0     
@@ -182,8 +183,8 @@ Pin #18  05818 Mode  xx
  03608 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #17  05820 Mode  -- 
  03652 -------------------------------------------- 
- 03696 -x--------------------------x--------------x 
- 03740 x-----------x------------------------------x 
+ 03696 -----x----------------------x--------------x 
+ 03740 ----x-------x------------------------------x 
  03784 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03828 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03872 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -198,8 +199,8 @@ Pin #17  05820 Mode  --
  04268 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #16  05822 Mode  -- 
  04312 -------------------------------------------- 
- 04356 -x------------------------------x----------x 
- 04400 x---------------x--------------------------x 
+ 04356 -----x--------------------------x----------x 
+ 04400 ----x-----------x--------------------------x 
  04444 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04488 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04532 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -212,8 +213,8 @@ Pin #16  05822 Mode  --
  04840 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #15  05824 Mode  -- 
  04884 -------------------------------------------- 
- 04928 -x----------------------------------x------x 
- 04972 x-------------------x----------------------x 
+ 04928 -----x------------------------------x------x 
+ 04972 ----x---------------x----------------------x 
  05016 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05060 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -224,8 +225,8 @@ Pin #15  05824 Mode  --
  05324 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #14  05826 Mode  -- 
  05368 -------------------------------------------- 
- 05412 -x--------------------------------------x--x 
- 05456 x-----------------------x------------------x 
+ 05412 -----x----------------------------------x--x 
+ 05456 ----x-------------------x------------------x 
  05500 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05544 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05588 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -243,8 +244,8 @@ LEGEND    X : fuse not blown
 
                                ______________
                               |CRTC_PIXEL_GEN|
-                 PIXEL_IN x---|1           24|---x Vcc                      
-                          x---|2           23|---x                          
+                PIXEL_CLK x---|1           24|---x Vcc                      
+                 PIXEL_IN x---|2           23|---x                          
                           x---|3           22|---x                          
                        C0 x---|4           21|---x                          
                        C1 x---|5           20|---x                          
@@ -254,6 +255,6 @@ LEGEND    X : fuse not blown
                        C5 x---|9           16|---x GREEN                    
                        C6 x---|10          15|---x BLUE                     
                        C7 x---|11          14|---x INTENSITY                
-                      GND x---|12          13|---x D_ENABLE_IN              
+                      GND x---|12          13|---x BLANKING_INTERVAL_IN     
                               |______________|
 

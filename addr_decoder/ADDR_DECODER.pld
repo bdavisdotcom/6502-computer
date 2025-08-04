@@ -14,14 +14,8 @@ Device   g22V10;
 
 /* INPUTS */
 Pin 1  =  CLK;
-Pin 2  =  A15;
-Pin 3  =  A14;
-Pin 4  =  A13;
-Pin 5  =  A12;
-Pin 6  =  A11;
-Pin 7  =  A10;
-Pin 8  =  A09;
-Pin 9  =  A08;
+Pin [2..9] = [A15..A08];
+
 Pin 10 =  ACIA_INTERRUPT;
 Pin 11 =  VIA_INTERRUPT;
 
@@ -46,26 +40,19 @@ Pin 23 = !ROM_CE;
 
 /* Pin 24 is VCC */
 
-/*
-    ROM $A000 - $FFFF
-    ACIA $8000
-    VIA0 $8100
-    VIA1 $8200 (not used yet)
-    VIA2 $8300 (not used yet)
-    CRTC $8700    
-    CHAR_RAM $8800
-    COLOR_RAM $9000
+FIELD ADDRESS_IO = [A15..A08];
 
-    RAM $0000 - $7FFF
-*/
+ROM_CE =      ADDRESS_IO:[A000..FFFF];      /* (A15 & A14) # (A15 & !A14 & A13); */
+COLOR_RAM_CE= ADDRESS_IO:[9800..9FFF];      /* CLK & A15 & !A14 & !A13 & A12; */
+CHAR_RAM_CE = ADDRESS_IO:[9000..97FF];      /* CLK & A15 & !A14 & !A13 & !A12 & A11; */
+CRTC_CE =     ADDRESS_IO:[8900..89FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08; */
+VIA0_CE =     ADDRESS_IO:[8100..81FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08; */
+ACIA_CE =     ADDRESS_IO:[8000..80FF];      /* A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08; */
+RAM_CE =      ADDRESS_IO:[0000..7FFF] & CLK; /* !A15 & CLK; */
 
-ROM_CE =      (A15 & A14) # (A15 & !A14 & A13);
-RAM_CE =     !A15 & CLK;
-ACIA_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08;
-VIA0_CE =     A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08;
-CRTC_CE =     A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08;
-CHAR_RAM_CE = CLK & A15 & !A14 & !A13 & !A12 & A11;
-COLOR_RAM_CE= CLK & A15 & !A14 & !A13 & A12;
+/* 
+    There is space for more I/O between VIA_0 (81ff) and CRTC (8900)
+*/ 
 
 CLK_INVERT = !CLK;
 CPU_INTERRUPT = !(ACIA_INTERRUPT & VIA_INTERRUPT);

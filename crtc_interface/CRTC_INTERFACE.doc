@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Thu Jul 31 14:38:59 2025
+Created         Fri Aug 01 06:19:49 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -20,27 +20,16 @@ Location        none
 ===============================================================================
 
 C =>
-    !CCLK , clk_eighth , clk_quarter , pixel_clk
+    char_clk , clk_eighth , clk_quarter , pixel_clk
 
-!CCLK.d  =>
-    !CCLK & clk_eighth & clk_quarter & !pixel_clk
-  # CCLK & clk_eighth & clk_quarter & pixel_clk
-  # !CCLK & clk_eighth & !clk_quarter
-  # !CCLK & !clk_eighth
+blanking_interval_out =>
+    !display_interval_in
 
-!SR_PE =>
-    CCLK
-  # !clk_eighth
-  # !clk_quarter
-  # pixel_clk
-  # !display_enable_in
-
-!blank_out =>
-    CCLK & !blank_out
-  # !blank_out & !clk_eighth
-  # !blank_out & !clk_quarter
-  # !blank_out & pixel_clk
-  # !CCLK & clk_eighth & clk_quarter & !display_enable_in & !pixel_clk
+char_clk.d  =>
+    char_clk & clk_eighth & clk_quarter & !pixel_clk
+  # !char_clk & clk_eighth & clk_quarter & pixel_clk
+  # char_clk & clk_eighth & !clk_quarter
+  # char_clk & !clk_eighth
 
 clk_eighth.d  =>
     clk_eighth & clk_quarter & !pixel_clk
@@ -51,30 +40,22 @@ clk_quarter.d  =>
     clk_quarter & !pixel_clk
   # !clk_quarter & pixel_clk
 
-!hsync_out =>
-    CCLK & !hsync_out
-  # !clk_eighth & !hsync_out
-  # !clk_quarter & !hsync_out
-  # !hsync_out & pixel_clk
-  # !CCLK & clk_eighth & clk_quarter & !hsync_in & !pixel_clk
+hsync_out =>
+    !hsync_in
 
 pixel_clk.d  =>
     !pixel_clk
 
-!vsync_out =>
-    CCLK & !vsync_out
-  # !clk_eighth & !vsync_out
-  # !clk_quarter & !vsync_out
-  # pixel_clk & !vsync_out
-  # !CCLK & clk_eighth & clk_quarter & !pixel_clk & !vsync_in
+shift_load =>
+    char_clk & clk_eighth & clk_quarter & display_interval_in & !pixel_clk
 
-CCLK.oe  =>
+vsync_out =>
+    !vsync_in
+
+blanking_interval_out.oe  =>
     1 
 
-SR_PE.oe  =>
-    1 
-
-blank_out.oe  =>
+char_clk.oe  =>
     1 
 
 clk_eighth.oe  =>
@@ -87,6 +68,9 @@ hsync_out.oe  =>
     1 
 
 pixel_clk.oe  =>
+    1 
+
+shift_load.oe  =>
     1 
 
 vsync_out.oe  =>
@@ -102,29 +86,29 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
 --- --------            ---     ---     ----    ------  ------  -----   
 
     C                           0        F        -       -       -     
- !  CCLK                        21       V        -       -       -     
- !  CCLK                d       21       X        4       12      1     
- !  SR_PE                       17       V        5       14      1     
- !  blank_out                   16       V        5       12      1     
+    blanking_interval_out        16       V        1       12      1     
+    char_clk                    21       V        -       -       -     
+    char_clk            d       21       X        4       12      1     
     clk                         1        V        -       -       -     
     clk_eighth                  23       V        -       -       -     
     clk_eighth          d       23       X        3       8       1     
     clk_quarter                 20       V        -       -       -     
     clk_quarter         d       20       X        2       14      1     
-    display_enable_in           3        V        -       -       -     
+    display_interval_in         3        V        -       -       -     
     hsync_in                    5        V        -       -       -     
- !  hsync_out                   14       V        5       8       1     
+    hsync_out                   14       V        1       8       1     
     pixel_clk                   18       V        -       -       -     
     pixel_clk           d       18       X        1       16      1     
+    shift_load                  17       V        1       14      1     
     vsync_in                    4        V        -       -       -     
- !  vsync_out                   15       V        5       10      1     
-    CCLK                oe      21       D        1       1       0     
-    SR_PE               oe      17       D        1       1       0     
-    blank_out           oe      16       D        1       1       0     
+    vsync_out                   15       V        1       10      1     
+    blanking_interval_outoe      16       D        1       1       0     
+    char_clk            oe      21       D        1       1       0     
     clk_eighth          oe      23       D        1       1       0     
     clk_quarter         oe      20       D        1       1       0     
     hsync_out           oe      14       D        1       1       0     
     pixel_clk           oe      18       D        1       1       0     
+    shift_load          oe      17       D        1       1       0     
     vsync_out           oe      15       D        1       1       0     
 
 
@@ -232,13 +216,13 @@ Pin #18  05818 Mode  -x
  03520 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03564 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03608 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #17  05820 Mode  -- 
+Pin #17  05820 Mode  x- 
  03652 -------------------------------------------- 
- 03696 ----------x--------------------------------- 
- 03740 --x----------------------------------------- 
- 03784 --------------x----------------------------- 
- 03828 -----------------------x-------------------- 
- 03872 ---------x---------------------------------- 
+ 03696 ---x----x--x---x------x--------------------- 
+ 03740 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 03784 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 03828 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 03872 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03916 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03960 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04004 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -250,11 +234,11 @@ Pin #17  05820 Mode  --
  04268 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #16  05822 Mode  -- 
  04312 -------------------------------------------- 
- 04356 ----------x-------------------x------------- 
- 04400 --x---------------------------x------------- 
- 04444 --------------x---------------x------------- 
- 04488 -----------------------x------x------------- 
- 04532 ---x-----x-x---x------x--------------------- 
+ 04356 ---------x---------------------------------- 
+ 04400 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04444 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04488 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04532 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04576 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04620 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04664 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -264,11 +248,11 @@ Pin #16  05822 Mode  --
  04840 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #15  05824 Mode  -- 
  04884 -------------------------------------------- 
- 04928 ----------x-----------------------x--------- 
- 04972 --x-------------------------------x--------- 
- 05016 --------------x-------------------x--------- 
- 05060 -----------------------x----------x--------- 
- 05104 ---x-------x-x-x------x--------------------- 
+ 04928 -------------x------------------------------ 
+ 04972 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05016 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05060 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05236 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -276,11 +260,11 @@ Pin #15  05824 Mode  --
  05324 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #14  05826 Mode  -- 
  05368 -------------------------------------------- 
- 05412 ----------x---------------------------x----- 
- 05456 --x-----------------------------------x----- 
- 05500 --------------x-----------------------x----- 
- 05544 -----------------------x--------------x----- 
- 05588 ---x-------x---x-x----x--------------------- 
+ 05412 -----------------x-------------------------- 
+ 05456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05500 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05544 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05588 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05632 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05676 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05720 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -297,15 +281,15 @@ LEGEND    X : fuse not blown
                               |CRTC_INTERFACE|
                       clk x---|1           24|---x Vcc                      
                           x---|2           23|---x clk_eighth               
-        display_enable_in x---|3           22|---x                          
-                 vsync_in x---|4           21|---x !CCLK                    
+      display_interval_in x---|3           22|---x                          
+                 vsync_in x---|4           21|---x char_clk                 
                  hsync_in x---|5           20|---x clk_quarter              
                           x---|6           19|---x                          
                           x---|7           18|---x pixel_clk                
-                          x---|8           17|---x !SR_PE                   
-                          x---|9           16|---x !blank_out               
-                          x---|10          15|---x !vsync_out               
-                          x---|11          14|---x !hsync_out               
+                          x---|8           17|---x shift_load               
+                          x---|9           16|---x blanking_interval_ou     
+                          x---|10          15|---x vsync_out                
+                          x---|11          14|---x hsync_out                
                       GND x---|12          13|---x                          
                               |______________|
 

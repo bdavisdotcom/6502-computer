@@ -10,22 +10,22 @@ Device      g22v10;
 
 pin 1 = clk; /* 25.175 mhz */
 
-pin 3 = display_enable_in;
+pin 3 = display_interval_in;
 pin 4 = vsync_in;
 pin 5 = hsync_in;
 
-pin 14 = !hsync_out; /* delayed inverted hsync */
-pin 15 = !vsync_out; /* delayed inverted vsync */
-pin 16 = !blank_out; /* delayed  display_enable_in */
-pin 17 = !SR_PE; /* shift register parallel load enable */
+pin 14 = hsync_out; /*  inverted hsync */
+pin 15 = vsync_out; /*  inverted vsync */
+pin 16 = blanking_interval_out;
+pin 17 = shift_load; /* shift register parallel load enable */
 pin 18 = pixel_clk; /* 1/2 clk */
 
 pin 20 = clk_quarter; /* 6mhz */
-pin 21 = !CCLK; /* 1/16 clock - MC68B45 cclk signal 1.5xx mhz */
+pin 21 = char_clk; /* 1/16 clock - MC68B45 character clock signal 1.5xx mhz */
 pin 23 = clk_eighth; /* 3.xx mhz */
 
-Field C = [!CCLK, clk_eighth, clk_quarter, pixel_clk];
-SequenceD C {
+Field Counter = [char_clk, clk_eighth, clk_quarter, pixel_clk];
+SequenceD Counter {
     $REPEAT i = [0..15]
         Present 'h'{i}
             Next 'h'{(i+1) % 16};
@@ -35,21 +35,10 @@ SequenceD C {
 /* 
     display_enable_in is HIGH when display is enabled for signal
     and LOW when it's in the blanking region.This is how MC6845 works
-
     shift register is clocked by the input clock (pixel clock)
-   after !CCLK goes low, the crtc changes address, hsync, vsync, blank, etc
-   addresses could take nearly 4 pixel clocks to settle, others longer
-
-   so we will reload the shift register at the last opportunity before !CCLK falls
-   and triggers a new cycle
-
-    note that due to the synchronous clocking, !SR_PE goes low on the cycle after
-    the one we specify here. and also, during blanking we want to just let all the bits
-    shift out and not get reloaded at all
 */ 
-!SR_PE = !(C:E) # !display_enable_in;
+shift_load = !(Counter:F & display_interval_in);
 
-/* delay and invert the sync and blank signals */
-!hsync_out = (!(C:E) & !hsync_out) # (C:E & !hsync_in);
-!vsync_out = (!(C:E) & !vsync_out) # (C:E & !vsync_in);
-!blank_out = (!(C:E) & !blank_out) # (C:E & !display_enable_in);
+hsync_out = !hsync_in;
+vsync_out = !vsync_in;
+blanking_interval_out = !display_interval_in;

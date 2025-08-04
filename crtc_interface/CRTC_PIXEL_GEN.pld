@@ -17,16 +17,10 @@ Device      g22v10;
 */
 
 /* INPUT PINS */
-Pin 1 = PIXEL_IN; /* 0= pixel off, 1= pixel on */
-Pin 4 = C0;
-Pin 5 = C1;
-Pin 6 = C2;
-Pin 7 = C3; 
-Pin 8 = C4;
-Pin 9 = C5;
-Pin 10 = C6;
-Pin 11 = C7;
-Pin 13 = D_ENABLE_IN; /* in display area or not */
+Pin 1 = PIXEL_CLK;
+Pin 2 = PIXEL_IN; /* 0= pixel off, 1= pixel on */
+Pin [4..11] = [C0..C7];
+Pin 13 = BLANKING_INTERVAL_IN; /* in display area or not */
 
 /* OUTPUT PINS */
 Pin 14 = INTENSITY; /* intensity bit */
@@ -34,8 +28,7 @@ Pin 15 = BLUE; /* blue bit */
 Pin 16 = GREEN; /* green bit */
 Pin 17 = RED; /* red bit */
 
-/* inverting D_ENABLE_IN for now, since the crtc_interface is inverting it unnecessarily */
-RED = !D_ENABLE_IN & ((PIXEL_IN & C0) # (!PIXEL_IN & C4));
-GREEN = !D_ENABLE_IN & ((PIXEL_IN & C1) # (!PIXEL_IN & C5));
-BLUE = !D_ENABLE_IN & ((PIXEL_IN & C2) # (!PIXEL_IN & C6));
-INTENSITY = !D_ENABLE_IN & ((PIXEL_IN & C3) # (!PIXEL_IN & C7));
+RED = !BLANKING_INTERVAL_IN & ((PIXEL_IN & C0) # (!PIXEL_IN & C4));
+GREEN = !BLANKING_INTERVAL_IN & ((PIXEL_IN & C1) # (!PIXEL_IN & C5));
+BLUE = !BLANKING_INTERVAL_IN & ((PIXEL_IN & C2) # (!PIXEL_IN & C6));
+INTENSITY = !BLANKING_INTERVAL_IN & ((PIXEL_IN & C3) # (!PIXEL_IN & C7));
