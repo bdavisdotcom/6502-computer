@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Tue Jul 22 07:59:29 2025
+Created         Mon Aug 04 11:15:08 2025
 Name            ADDR_DECODER
 Partno          01
 Revision        01
@@ -20,32 +20,35 @@ Location        Here
 ===============================================================================
 
 ACIA_CE =>
-    !A08 & !A09 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
+    !A8 & !A9 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
+
+ADDRESS_IO =>
+    A15 , A14 , A13 , A12 , A11 , A10 , A9 , A8
 
 CHAR_RAM_CE =>
-    A11 & !A12 & !A13 & !A14 & A15
+    !A11 & A12 & !A13 & !A14 & A15
 
 CLK_INVERT =>
     !CLK
 
 COLOR_RAM_CE =>
-    A12 & !A13 & !A14 & A15
+    A11 & A12 & !A13 & !A14 & A15
 
 CPU_INTERRUPT =>
     ACIA_INTERRUPT & VIA_INTERRUPT
 
 CRTC_CE =>
-    A08 & A09 & A10 & !A11 & !A12 & !A13 & !A14 & A15
+    A8 & !A9 & !A10 & A11 & !A12 & !A13 & !A14 & A15
 
 RAM_CE =>
     !A15 & CLK
 
 ROM_CE =>
-    A14 & A15
-  # A13 & !A14 & A15
+    A13 & A15
+  # !A13 & A14 & A15
 
 VIA0_CE =>
-    A08 & !A09 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
+    A8 & !A9 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
 
 ACIA_CE.oe  =>
     1 
@@ -83,8 +86,8 @@ Pin Variable                                    Pterms   Max     Min
 Pol   Name              Ext     Pin     Type     Used   Pterms  Level   
 --- --------            ---     ---     ----    ------  ------  -----   
 
-    A08                         9        V        -       -       -     
-    A09                         8        V        -       -       -     
+    A8                          9        V        -       -       -     
+    A9                          8        V        -       -       -     
     A10                         7        V        -       -       -     
     A11                         6        V        -       -       -     
     A12                         5        V        -       -       -     
@@ -93,6 +96,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     A15                         2        V        -       -       -     
  !  ACIA_CE                     21       V        1       12      1     
     ACIA_INTERRUPT              10       V        -       -       -     
+    ADDRESS_IO                  0        F        -       -       -     
  !  CHAR_RAM_CE                 19       V        1       16      1     
     CLK                         1        V        -       -       -     
     CLK_INVERT                  14       V        1       8       1     
@@ -132,8 +136,8 @@ AR
 
 Pin #23  05808 Mode  x- 
  00044 -------------------------------------------- 
- 00088 ----x---x----------------------------------- 
- 00132 ----x----x--x------------------------------- 
+ 00088 ----x-------x------------------------------- 
+ 00132 ----x---x----x------------------------------ 
  00176 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00220 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00264 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -168,7 +172,7 @@ Pin #21  05812 Mode  x-
  01452 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #20  05814 Mode  x- 
  01496 -------------------------------------------- 
- 01540 ----x----x---x---x---x--x---x---x----------- 
+ 01540 ----x----x---x---x--x----x---x--x----------- 
  01584 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01628 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01672 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -184,7 +188,7 @@ Pin #20  05814 Mode  x-
  02112 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #19  05816 Mode  x- 
  02156 -------------------------------------------- 
- 02200 ----x----x---x---x--x----------------------- 
+ 02200 ----x----x---x--x----x---------------------- 
  02244 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02288 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02332 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -202,7 +206,7 @@ Pin #19  05816 Mode  x-
  02860 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #18  05818 Mode  x- 
  02904 -------------------------------------------- 
- 02948 ----x----x---x--x--------------------------- 
+ 02948 ----x----x---x--x---x----------------------- 
  02992 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03036 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03080 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -288,8 +292,8 @@ LEGEND    X : fuse not blown
                       A12 x---|5           20|---x !CRTC_CE                 
                       A11 x---|6           19|---x !CHAR_RAM_CE             
                       A10 x---|7           18|---x !COLOR_RAM_CE            
-                      A09 x---|8           17|---x !VIA0_CE                 
-                      A08 x---|9           16|---x                          
+                       A9 x---|8           17|---x !VIA0_CE                 
+                       A8 x---|9           16|---x                          
            ACIA_INTERRUPT x---|10          15|---x !CPU_INTERRUPT           
             VIA_INTERRUPT x---|11          14|---x CLK_INVERT               
                       GND x---|12          13|---x                          

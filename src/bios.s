@@ -143,6 +143,7 @@ CHRIN:
 MONCOUT:
 CHROUT:
     pha
+    jsr VIDEO_WRITE_CHAR
     sta ACIA_DATA
     lda #$FF
 @txdelay:       

@@ -1,7 +1,7 @@
 
 CUPL(WM)        5.0a  Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Fri Aug 01 06:23:55 2025
+Created         Wed Aug 06 19:14:48 2025
 Name            CRTC_PIXEL_GEN
 Partno          00
 Revision        01
@@ -37,4 +37,4 @@ Location        none
 *L05792 00000000000000000000000000001111
 *L05824 11110011000000110000000000000000
 *C4173
-*FE5E
+*FE68
