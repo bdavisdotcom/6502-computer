@@ -15,8 +15,9 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $00, $00, $00, $00, $00, $00
-
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $40, $0f, $00, $00, $00, $00
+CRTC_CURSOR_H = $890A ; REG 10
+CRTC_CURSOR_L = $890B ; REG 11
 CRTC_ADDRESS = $8900
 CRTC_REGISTER = $8901
 CHAR_RAM = $9000
@@ -25,6 +26,18 @@ CHAR_RAM_DEFAULT_VALUE = $00
 COLOR_RAM = $9800
 COLOR_RAM_END = $9CB0
 COLOR_RAM_DEFAULT_VALUE = $0f
+
+.macro _set_cursor_pos
+    LDX CRTC_CURSOR_L
+    STX CRTC_ADDRESS
+    LDX CURSOR_ADDRESS_PTR
+    STX CRTC_REGISTER
+
+    LDX CRTC_CURSOR_H
+    STX CRTC_ADDRESS
+    LDX CURSOR_ADDRESS_PTR+1
+    STX CRTC_REGISTER    
+.endmacro
 
 ; Alters A, X, Y registers!
 ; Alters $10, $11, $12, $13, $14!
@@ -82,6 +95,8 @@ INIT_CRTC:
     lda #>CHAR_RAM
     sta CURSOR_ADDRESS_PTR+1
 
+    _set_cursor_pos
+
     lda #$00
     sta CURSOR_X_POS
 
@@ -128,25 +143,23 @@ VIDEO_WRITE_CHAR:
     cmp #$0D
     bne @enter_key_not_pressed
 
-    ; here enter key was pressed...
+; here enter key was pressed...
     pha
-
     ; determine how many bytes to add to get to next line on display...
     lda #$27            ; load with 40
     sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
     adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
-    bcc @no_high_255_rollover
+    bcc @no_low_255_rollover
     inc CURSOR_ADDRESS_PTR+1 ; we rolled over 255 on low byte
+    
+@no_low_255_rollover:
 
-@no_high_255_rollover:
     sta CURSOR_ADDRESS_PTR
     lda #$00
     sta CURSOR_X_POS
-
-    ; todo: we need to check for 256 rollover and account for that
-
     pla
-    rts
+    phx ; exit has plx
+    jmp @check_at_max_video_ram
 
 @enter_key_not_pressed:
 
@@ -185,6 +198,7 @@ VIDEO_WRITE_CHAR:
     ldx #>CHAR_RAM
     stx CURSOR_ADDRESS_PTR+1
 @exit_video_write_char:
+    _set_cursor_pos
     plx
     rts
 
@@ -206,5 +220,6 @@ VIDEO_WRITE_CHAR:
     bne @exit_video_cursor_backspace
     dec CURSOR_ADDRESS_PTR+1
 @exit_video_cursor_backspace:
+    _set_cursor_pos
     plx
     rts

@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Wed Aug 06 19:14:48 2025
+Created         Sat Aug 09 08:53:59 2025
 Name            CRTC_PIXEL_GEN
 Partno          00
 Revision        01
@@ -19,21 +19,33 @@ Location        none
                             Expanded Product Terms
 ===============================================================================
 
-BLUE =>
-    !BLANKING_INTERVAL_IN & C6 & !PIXEL_IN
-  # !BLANKING_INTERVAL_IN & C2 & PIXEL_IN
+BLUE.d  =>
+    !BLANKING_INTERVAL_IN & C6 & CURSOR_IN & PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C6 & !CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C2 & CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C2 & !CURSOR_IN & PIXEL_IN
 
-GREEN =>
-    !BLANKING_INTERVAL_IN & C5 & !PIXEL_IN
-  # !BLANKING_INTERVAL_IN & C1 & PIXEL_IN
+CURSOR_PIXEL =>
+    CURSOR_IN & !PIXEL_IN
+  # !CURSOR_IN & PIXEL_IN
 
-INTENSITY =>
-    !BLANKING_INTERVAL_IN & C7 & !PIXEL_IN
-  # !BLANKING_INTERVAL_IN & C3 & PIXEL_IN
+GREEN.d  =>
+    !BLANKING_INTERVAL_IN & C5 & CURSOR_IN & PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C5 & !CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C1 & CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C1 & !CURSOR_IN & PIXEL_IN
 
-RED =>
-    !BLANKING_INTERVAL_IN & C4 & !PIXEL_IN
-  # !BLANKING_INTERVAL_IN & C0 & PIXEL_IN
+INTENSITY.d  =>
+    !BLANKING_INTERVAL_IN & C7 & CURSOR_IN & PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C7 & !CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C3 & CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C3 & !CURSOR_IN & PIXEL_IN
+
+RED.d  =>
+    !BLANKING_INTERVAL_IN & C4 & CURSOR_IN & PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C4 & !CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C0 & CURSOR_IN & !PIXEL_IN
+  # !BLANKING_INTERVAL_IN & C0 & !CURSOR_IN & PIXEL_IN
 
 BLUE.oe  =>
     1 
@@ -57,7 +69,8 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
 --- --------            ---     ---     ----    ------  ------  -----   
 
     BLANKING_INTERVAL_IN        13       V        -       -       -     
-    BLUE                        15       V        2       10      1     
+    BLUE                        15       V        -       -       -     
+    BLUE                d       15       X        4       10      1     
     C0                          4        V        -       -       -     
     C1                          5        V        -       -       -     
     C2                          6        V        -       -       -     
@@ -66,11 +79,16 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     C5                          9        V        -       -       -     
     C6                          10       V        -       -       -     
     C7                          11       V        -       -       -     
-    GREEN                       16       V        2       12      1     
-    INTENSITY                   14       V        2       8       1     
+    CURSOR_IN                   3        V        -       -       -     
+    CURSOR_PIXEL                0        I        2       -       -     
+    GREEN                       16       V        -       -       -     
+    GREEN               d       16       X        4       12      1     
+    INTENSITY                   14       V        -       -       -     
+    INTENSITY           d       14       X        4       8       1     
     PIXEL_CLK                   1        V        -       -       -     
     PIXEL_IN                    2        V        -       -       -     
-    RED                         17       V        2       14      1     
+    RED                         17       V        -       -       -     
+    RED                 d       17       X        4       14      1     
     BLUE                oe      15       D        1       1       0     
     GREEN               oe      16       D        1       1       0     
     INTENSITY           oe      14       D        1       1       0     
@@ -181,12 +199,12 @@ Pin #18  05818 Mode  xx
  03520 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03564 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03608 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #17  05820 Mode  -- 
+Pin #17  05820 Mode  -x 
  03652 -------------------------------------------- 
- 03696 -----x----------------------x--------------x 
- 03740 ----x-------x------------------------------x 
- 03784 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 03828 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 03696 ----x---x-------------------x--------------x 
+ 03740 -----x---x------------------x--------------x 
+ 03784 -----x--x---x------------------------------x 
+ 03828 ----x----x--x------------------------------x 
  03872 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03916 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03960 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -197,12 +215,12 @@ Pin #17  05820 Mode  --
  04180 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04224 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04268 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #16  05822 Mode  -- 
+Pin #16  05822 Mode  -x 
  04312 -------------------------------------------- 
- 04356 -----x--------------------------x----------x 
- 04400 ----x-----------x--------------------------x 
- 04444 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 04488 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04356 ----x---x-----------------------x----------x 
+ 04400 -----x---x----------------------x----------x 
+ 04444 -----x--x-------x--------------------------x 
+ 04488 ----x----x------x--------------------------x 
  04532 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04576 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04620 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -211,24 +229,24 @@ Pin #16  05822 Mode  --
  04752 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04796 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04840 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #15  05824 Mode  -- 
+Pin #15  05824 Mode  -x 
  04884 -------------------------------------------- 
- 04928 -----x------------------------------x------x 
- 04972 ----x---------------x----------------------x 
- 05016 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 05060 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04928 ----x---x---------------------------x------x 
+ 04972 -----x---x--------------------------x------x 
+ 05016 -----x--x-----------x----------------------x 
+ 05060 ----x----x----------x----------------------x 
  05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05236 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05280 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05324 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #14  05826 Mode  -- 
+Pin #14  05826 Mode  -x 
  05368 -------------------------------------------- 
- 05412 -----x----------------------------------x--x 
- 05456 ----x-------------------x------------------x 
- 05500 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 05544 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 05412 ----x---x-------------------------------x--x 
+ 05456 -----x---x------------------------------x--x 
+ 05500 -----x--x---------------x------------------x 
+ 05544 ----x----x--------------x------------------x 
  05588 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05632 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05676 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -246,7 +264,7 @@ LEGEND    X : fuse not blown
                               |CRTC_PIXEL_GEN|
                 PIXEL_CLK x---|1           24|---x Vcc                      
                  PIXEL_IN x---|2           23|---x                          
-                          x---|3           22|---x                          
+                CURSOR_IN x---|3           22|---x                          
                        C0 x---|4           21|---x                          
                        C1 x---|5           20|---x                          
                        C2 x---|6           19|---x                          

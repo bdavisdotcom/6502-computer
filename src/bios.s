@@ -9,6 +9,8 @@ INPUT_WRITE_PTR:      .res 1
 KEYBOARD_FLAGS:       .res 1
 CURSOR_ADDRESS_PTR:   .res 2
 CURSOR_X_POS:         .res 1
+CURSOR_Y_POS:         .res 1
+
 .segment "INPUT_BUFFER"
 
 INPUT_BUFFER:   .res $100
