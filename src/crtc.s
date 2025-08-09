@@ -15,7 +15,7 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $31, $28, $28, $06, $1f, $0d, $1e, $1e, $00, $0f, $00, $00, $00, $00, $00, $00
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $00, $00, $00, $00, $00, $00
 
 CRTC_ADDRESS = $8900
 CRTC_REGISTER = $8901
@@ -26,15 +26,10 @@ COLOR_RAM = $9800
 COLOR_RAM_END = $9CB0
 COLOR_RAM_DEFAULT_VALUE = $0f
 
-CURSOR_ADDRESS_PTR = $94B0
-
 ; Alters A, X, Y registers!
+; Alters $10, $11, $12, $13, $14!
 INIT_CRTC:
     ldx #$00    ; crtc register address
-    lda #<COLOR_RAM
-    sta CURSOR_ADDRESS_PTR
-    lda #>COLOR_RAM
-    sta CURSOR_ADDRESS_PTR+1
 
 @settings_loop:
     stx CRTC_ADDRESS     ; set crtc address
@@ -81,6 +76,15 @@ INIT_CRTC:
 
     jsr @init_video_ram
 
+    ; init cursor address pointer to beginning of video ram
+    lda #<CHAR_RAM
+    sta CURSOR_ADDRESS_PTR
+    lda #>CHAR_RAM
+    sta CURSOR_ADDRESS_PTR+1
+
+    lda #$00
+    sta CURSOR_X_POS
+
     rts
 
 ; Modifies: A, Y regs
@@ -113,19 +117,62 @@ INIT_CRTC:
 ; A - register contains ascii character code to write to memory
 ; location pointed at by VIDEO_CURSOR_PTR
 VIDEO_WRITE_CHAR:
-    phx
-    ldx #<CURSOR_ADDRESS_PTR
-    stx $10
-    ldx #>CURSOR_ADDRESS_PTR
-    stx $11
-    sta ($10)
 
-    inc CURSOR_ADDRESS_PTR
+    cmp #$7f ; was it a backspace/delete?
+    bne @backspace_not_pressed
+    jmp @video_cursor_backspace
+
+@backspace_not_pressed:
+
+    ; check if it's the enter key
+    cmp #$0D
+    bne @enter_key_not_pressed
+
+    ; here enter key was pressed...
+    pha
+
+    ; determine how many bytes to add to get to next line on display...
+    lda #$27            ; load with 40
+    sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
+    adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
+    bcc @no_high_255_rollover
+    inc CURSOR_ADDRESS_PTR+1 ; we rolled over 255 on low byte
+
+@no_high_255_rollover:
+    sta CURSOR_ADDRESS_PTR
+    lda #$00
+    sta CURSOR_X_POS
+
+    ; todo: we need to check for 256 rollover and account for that
+
+    pla
+    rts
+
+@enter_key_not_pressed:
+
+    cmp #$0a ; is it a $0a character?
+    bne @not_0a ; no, continue
+    rts ; yes just ignore it
+
+@not_0a:
+    phx
+
+    sta (CURSOR_ADDRESS_PTR)
+
+    inc CURSOR_ADDRESS_PTR  ;increment cursor video memory position
+    inc CURSOR_X_POS        ;increment our x char position tracker
+
+    ldx CURSOR_X_POS        ; check if we are going to position 40 (next line so 0)
+    cpx #$28                ; are we at char position 40?
+    bne @check_256_vid_rollover ; no, skip ahead
+    ldx #$00                    ; yes, reset it to 0
+    stx CURSOR_X_POS
+
+@check_256_vid_rollover:
     ldx CURSOR_ADDRESS_PTR
     cpx #$00
     bne @check_at_max_video_ram
     inc CURSOR_ADDRESS_PTR+1
-    ldx CURSOR_ADDRESS_PTR+1
 @check_at_max_video_ram:
     ldx CURSOR_ADDRESS_PTR+1
     cpx #>CHAR_RAM_END
@@ -133,18 +180,27 @@ VIDEO_WRITE_CHAR:
     ldx CURSOR_ADDRESS_PTR
     cpx #<CHAR_RAM_END
     bne @exit_video_write_char
-    lda #<CHAR_RAM
-    sta CURSOR_ADDRESS_PTR
-    lda #>CHAR_RAM
-    sta CURSOR_ADDRESS_PTR+1
+    ldx #<CHAR_RAM
+    stx CURSOR_ADDRESS_PTR
+    ldx #>CHAR_RAM
+    stx CURSOR_ADDRESS_PTR+1
 @exit_video_write_char:
     plx
     rts
 
 ; back the cursor up 1 byte in the video ram
-VIDEO_CURSOR_BACKSPACE:
+@video_cursor_backspace:
     phx
     dec CURSOR_ADDRESS_PTR
+    dec CURSOR_X_POS
+
+    ldx CURSOR_X_POS
+    cpx #$ff
+    bne @not_x_rollover
+    ldx #$27
+    stx CURSOR_X_POS
+
+@not_x_rollover:
     ldx CURSOR_ADDRESS_PTR
     cpx #$ff
     bne @exit_video_cursor_backspace

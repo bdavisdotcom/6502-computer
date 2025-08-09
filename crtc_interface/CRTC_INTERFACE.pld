@@ -47,6 +47,6 @@ SequenceD Counter {
 
 !hsync_out.d = (!(Counter:6) & !hsync_out) # (Counter:6 & !hsync_in);
 !vsync_out.d = (!(Counter:6) & !vsync_out) # (Counter:6 & !vsync_in);
-!blanking_interval_out.d = (!(Counter:6) & blanking_interval_out) # (Counter:6 & !display_interval_in);
+!blanking_interval_out.d = !display_interval_in;
 
 pixel_clk = !clk_in;

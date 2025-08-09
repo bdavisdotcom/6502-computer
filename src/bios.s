@@ -7,7 +7,8 @@
 INPUT_READ_PTR:       .res 1
 INPUT_WRITE_PTR:      .res 1
 KEYBOARD_FLAGS:       .res 1
-
+CURSOR_ADDRESS_PTR:   .res 2
+CURSOR_X_POS:         .res 1
 .segment "INPUT_BUFFER"
 
 INPUT_BUFFER:   .res $100
@@ -33,7 +34,10 @@ IER             = $810E
   
 RESET:
     CLD                     ; Clear decimal arithmetic mode.
-    CLI                     ; clear interrupts
+    CLI                     ; enable interrupts
+
+    ; initialize crtc / display
+    jsr INIT_CRTC
 
     JSR INIT_BUFFER     ; initialize rs-232 serial input buffer
 
@@ -42,7 +46,6 @@ RESET:
     sta PCR
     lda #$82            ; enable CA1 interrupts
     sta IER
-    ;cli
 
     lda #$00
     sta DDRA                ; set PORTA pins to INPUT
@@ -72,9 +75,6 @@ RESET:
     sta $11
     jsr PRINT_STR
 
-    ; initialize crtc / display
-    jsr INIT_CRTC
-
     lda #<RUNNING_WOZMON
     sta $10
     lda #>RUNNING_WOZMON
@@ -97,7 +97,7 @@ PRINT_STR:
     ldy #$00
 @print_str_loop:
     lda ($10),y
-    beq @print_str_done
+    beq @print_str_done ; if byte is 00, we're done
     jsr CHROUT
     iny
     jmp @print_str_loop

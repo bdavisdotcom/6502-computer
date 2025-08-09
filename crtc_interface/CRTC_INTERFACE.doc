@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Wed Aug 06 19:13:50 2025
+Created         Thu Aug 07 11:03:42 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -23,10 +23,7 @@ Counter =>
     !char_clk , clk_quarter , clk_half
 
 !blanking_interval_out.d  =>
-    blanking_interval_out & char_clk
-  # blanking_interval_out & !clk_quarter
-  # blanking_interval_out & clk_half
-  # !char_clk & !clk_half & clk_quarter & !display_interval_in
+    !display_interval_in
 
 !char_clk.d  =>
     !char_clk & !clk_half & clk_quarter
@@ -96,7 +93,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
 
     Counter                     0        F        -       -       -     
  !  blanking_interval_out        16       V        -       -       -     
- !  blanking_interval_outd       16       X        4       12      1     
+ !  blanking_interval_outd       16       X        1       12      1     
  !  char_clk                    21       V        -       -       -     
  !  char_clk            d       21       X        3       12      1     
     clk                         1        V        -       -       -     
@@ -247,10 +244,10 @@ Pin #17  05820 Mode  -x
  04268 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #16  05822 Mode  -x 
  04312 -------------------------------------------- 
- 04356 ----------x-------------------x------------- 
- 04400 --------------x---------------x------------- 
- 04444 ---x--------------------------x------------- 
- 04488 --x------x-x---x---------------------------- 
+ 04356 ---------x---------------------------------- 
+ 04400 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04444 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 04488 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04532 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04576 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04620 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
