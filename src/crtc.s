@@ -16,8 +16,8 @@
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
 CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $40, $0f, $00, $00, $00, $00
-CRTC_CURSOR_H = $890A ; REG 10
-CRTC_CURSOR_L = $890B ; REG 11
+CRTC_CURSOR_H = $0E ; REG 14
+CRTC_CURSOR_L = $0F ; REG 15
 CRTC_ADDRESS = $8900
 CRTC_REGISTER = $8901
 CHAR_RAM = $9000
@@ -28,15 +28,16 @@ COLOR_RAM_END = $9CB0
 COLOR_RAM_DEFAULT_VALUE = $0f
 
 .macro _set_cursor_pos
-    LDX CRTC_CURSOR_L
-    STX CRTC_ADDRESS
-    LDX CURSOR_ADDRESS_PTR
-    STX CRTC_REGISTER
+    LDA #CRTC_CURSOR_L
+    STA CRTC_ADDRESS
+    LDA CURSOR_ADDRESS_PTR
+    STA CRTC_REGISTER
 
-    LDX CRTC_CURSOR_H
-    STX CRTC_ADDRESS
-    LDX CURSOR_ADDRESS_PTR+1
-    STX CRTC_REGISTER    
+    LDA #CRTC_CURSOR_H
+    STA CRTC_ADDRESS
+    LDA CURSOR_ADDRESS_PTR+1
+    SBC CHAR_RAM
+    STA CRTC_REGISTER    
 .endmacro
 
 ; Alters A, X, Y registers!
@@ -132,7 +133,8 @@ INIT_CRTC:
 ; A - register contains ascii character code to write to memory
 ; location pointed at by VIDEO_CURSOR_PTR
 VIDEO_WRITE_CHAR:
-
+    PHA
+    PHX
     cmp #$7f ; was it a backspace/delete?
     bne @backspace_not_pressed
     jmp @video_cursor_backspace
@@ -144,7 +146,6 @@ VIDEO_WRITE_CHAR:
     bne @enter_key_not_pressed
 
 ; here enter key was pressed...
-    pha
     ; determine how many bytes to add to get to next line on display...
     lda #$27            ; load with 40
     sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
@@ -157,19 +158,17 @@ VIDEO_WRITE_CHAR:
     sta CURSOR_ADDRESS_PTR
     lda #$00
     sta CURSOR_X_POS
-    pla
-    phx ; exit has plx
     jmp @check_at_max_video_ram
 
 @enter_key_not_pressed:
 
     cmp #$0a ; is it a $0a character?
     bne @not_0a ; no, continue
+    PLX
+    PLA
     rts ; yes just ignore it
 
 @not_0a:
-    phx
-
     sta (CURSOR_ADDRESS_PTR)
 
     inc CURSOR_ADDRESS_PTR  ;increment cursor video memory position
@@ -199,11 +198,13 @@ VIDEO_WRITE_CHAR:
     stx CURSOR_ADDRESS_PTR+1
 @exit_video_write_char:
     _set_cursor_pos
-    plx
+    PLX
+    PLA
     rts
 
 ; back the cursor up 1 byte in the video ram
 @video_cursor_backspace:
+    PHA
     phx
     dec CURSOR_ADDRESS_PTR
     dec CURSOR_X_POS
@@ -222,4 +223,5 @@ VIDEO_WRITE_CHAR:
 @exit_video_cursor_backspace:
     _set_cursor_pos
     plx
+    PLA
     rts
