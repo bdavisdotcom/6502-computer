@@ -27,6 +27,7 @@ COLOR_RAM = $9800
 COLOR_RAM_END = $9CB0
 COLOR_RAM_DEFAULT_VALUE = $0f
 
+; sets MC6845 cursor pos
 .macro _set_cursor_pos
     LDA #CRTC_CURSOR_L
     STA CRTC_ADDRESS
@@ -41,8 +42,51 @@ COLOR_RAM_DEFAULT_VALUE = $0f
     STA CRTC_REGISTER    
 .endmacro
 
+.macro _reset_vid_ptrs
+    ; init cursor address pointer to beginning of video ram
+    lda #<CHAR_RAM
+    sta CURSOR_ADDRESS_PTR
+    lda #>CHAR_RAM
+    sta CURSOR_ADDRESS_PTR+1
+
+    lda #$00
+    sta CURSOR_X_POS
+    sta CURSOR_Y_POS
+    sta VIDEO_SCROLL_POS
+    sta VIDEO_SCROLL_POS+1
+
+    _set_cursor_pos
+.endmacro
+
+VIDEO_SCROLL:
+;12 high
+;13 low
+    pha
+    lda VIDEO_SCROLL_POS
+    clc
+    adc #$28
+    bcc @no_scroll_carry
+    inc VIDEO_SCROLL_POS+1
+
+@no_scroll_carry:
+    sta VIDEO_SCROLL_POS
+
+    lda #$0d
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS
+    sta CRTC_REGISTER
+
+    lda #$0c
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS+1
+    sta CRTC_REGISTER
+
+    pla
+    jmp RESET_WOZMON
+
+    
+
 ; Alters A, X, Y registers!
-; Alters $10, $11, $12, $13, $14!
 INIT_CRTC:
     ldx #$00    ; crtc register address
 
@@ -55,80 +99,83 @@ INIT_CRTC:
     cpx #$10            ; decimal 16
     bne @settings_loop
 
-; Now set color ram to $0f (just white foreground text)
+; Now clear char and color ram
+    jsr VIDEO_CLEAR
 
-    lda #<COLOR_RAM
-    sta $10
+    rts
 
-    lda #>COLOR_RAM
-    sta $11
+VIDEO_CLEAR:
+    jsr VIDEO_CLEAR_CHAR_RAM
+    jsr VIDEO_CLEAR_COLOR_RAM
 
-    lda #COLOR_RAM_DEFAULT_VALUE
-    sta $12
+    rts
 
-    lda #<COLOR_RAM_END ; stop address
-    sta $13
-    lda #>COLOR_RAM_END ; end address
-    STA $14
-
-    jsr @init_video_ram
-
-; Now set char ram to $00 (empty)
-
-    lda #<CHAR_RAM
-    sta $10
-
-    lda #>CHAR_RAM
-    sta $11
-
-    lda #CHAR_RAM_DEFAULT_VALUE
-    sta $12
-
-    lda #<CHAR_RAM_END ; stop address
-    sta $13
-    LDA #>CHAR_RAM_END
-    STA $14
-
-    jsr @init_video_ram
-
+; Uses A, Y regs
+; Also uses CURSOR_ADDRESS_PTR
+VIDEO_CLEAR_CHAR_RAM:
+    pha
+    phy
     ; init cursor address pointer to beginning of video ram
     lda #<CHAR_RAM
     sta CURSOR_ADDRESS_PTR
     lda #>CHAR_RAM
     sta CURSOR_ADDRESS_PTR+1
+    lda #CHAR_RAM_DEFAULT_VALUE
+@loop:
+    sta (CURSOR_ADDRESS_PTR)
+    inc CURSOR_ADDRESS_PTR
+    beq @inc_high_byte
+@check_if_done:
+    ldy CURSOR_ADDRESS_PTR+1
+    cpy #>CHAR_RAM_END
+    bne @loop
+    ldy CURSOR_ADDRESS_PTR
+    cpy #<CHAR_RAM_END
+    beq @clear_done
+    jmp @loop
+@inc_high_byte:
+    inc CURSOR_ADDRESS_PTR+1
+    jmp @check_if_done
+@clear_done:
+    ply
+    pla
 
-    _set_cursor_pos
-
-    lda #$00
-    sta CURSOR_X_POS
+    _reset_vid_ptrs
 
     rts
 
-; Modifies: A, Y regs
-; Expects: 
-;   $10, $11 beginning memory address
-;   $12 value to write to each address
-;   $13, $14 ending memory address, non-inclusive
-@init_video_ram:
-    lda $12 ; load a with value to write to memory
+; Uses A, Y regs
+; Also uses CURSOR_ADDRESS_PTR
+VIDEO_CLEAR_COLOR_RAM:
+    pha
+    phy
+    ; init cursor address pointer to beginning of video ram
+    lda #<COLOR_RAM
+    sta CURSOR_ADDRESS_PTR
+    lda #>COLOR_RAM
+    sta CURSOR_ADDRESS_PTR+1
+    lda #COLOR_RAM_DEFAULT_VALUE
 @loop:
-    sta ($10) ; store the value to memory pointed to by $10
-    inc $10 ; increment value at memory location $10
-    ldy $10 ; load y with value at $10
-    cpy #$00 ; compare y with 0 (rollover from 255 to 0 check)
-    beq @inc_high_byte ; if rolled over, increment the high byte of the address
-@check_if_done:    
-    ldy $11 ; load y with value at $11
-    cpy $14 ; compare with end address stored in $14
-    bne @loop ; if not equal, go back to the loop
-    ldy $10 ; if $11 did match $14 -- load y with low address byte at $10
-    cpy $13 ; see if $10 matches $13
-    beq @init_video_ram_done ; if it does we are done ($10 == $13 and $11 = $14)
-    jmp @loop ; no, not done, go back to the loop
+    sta (CURSOR_ADDRESS_PTR)
+    inc CURSOR_ADDRESS_PTR
+    beq @inc_high_byte
+@check_if_done:
+    ldy CURSOR_ADDRESS_PTR+1
+    cpy #>COLOR_RAM_END
+    bne @loop
+    ldy CURSOR_ADDRESS_PTR
+    cpy #<COLOR_RAM_END
+    beq @clear_done
+    jmp @loop
 @inc_high_byte:
-    inc $11; increment the high address byte, because low byte rolled over to 255
-    jmp @check_if_done ; check if we're done or not
-@init_video_ram_done:
+    inc CURSOR_ADDRESS_PTR+1
+    jmp @check_if_done
+@clear_done:
+    ply
+    pla
+
+    _reset_vid_ptrs
+
     rts
 
 ; A - register contains ascii character code to write to memory
@@ -149,6 +196,7 @@ VIDEO_WRITE_CHAR:
 ; here enter key was pressed...
     ; determine how many bytes to add to get to next line on display...
     lda #$27            ; load with 40
+    SEC
     sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
     adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
     bcc @no_low_255_rollover
