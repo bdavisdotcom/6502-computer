@@ -36,7 +36,8 @@ COLOR_RAM_DEFAULT_VALUE = $0f
     LDA #CRTC_CURSOR_H
     STA CRTC_ADDRESS
     LDA CURSOR_ADDRESS_PTR+1
-    SBC CHAR_RAM
+    SEC
+    SBC #>CHAR_RAM
     STA CRTC_REGISTER    
 .endmacro
 
@@ -204,8 +205,6 @@ VIDEO_WRITE_CHAR:
 
 ; back the cursor up 1 byte in the video ram
 @video_cursor_backspace:
-    PHA
-    phx
     dec CURSOR_ADDRESS_PTR
     dec CURSOR_X_POS
 
