@@ -268,10 +268,10 @@ VIDEO_WRITE_CHAR:
 @check_at_max_video_ram:
     ldx CURSOR_ADDRESS_PTR+1
     cpx #>CHAR_RAM_END
-    bne @exit_video_write_char
+    bcc @exit_video_write_char
     ldx CURSOR_ADDRESS_PTR
     cpx #<CHAR_RAM_END
-    bne @exit_video_write_char
+    bcc @exit_video_write_char
     ldx #<CHAR_RAM
     stx CURSOR_ADDRESS_PTR
     ldx #>CHAR_RAM
