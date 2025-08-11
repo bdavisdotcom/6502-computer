@@ -7,6 +7,7 @@
 INPUT_READ_PTR:       .res 1
 INPUT_WRITE_PTR:      .res 1
 KEYBOARD_FLAGS:       .res 1
+
 CURSOR_ADDRESS_PTR:   .res 2
 VIDEO_SCROLL_POS:     .res 2
 CURSOR_X_POS:         .res 1

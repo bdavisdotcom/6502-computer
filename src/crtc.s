@@ -173,10 +173,10 @@ VIDEO_SCROLL:
 ;13 low
     ; check will scroll wrap around back to beginning?
     lda VIDEO_SCROLL_POS+1
-    cmp #$07
+    cmp #$97
     bne @no_wrap_around
     lda VIDEO_SCROLL_POS
-    cmp #$f8
+    cmp #$F8
     bne @no_wrap_around
     ; scroll will wrap back to beginning of memory, so adjust
     ; since memory size isn't divisible by 40 evenly
@@ -226,9 +226,9 @@ VIDEO_WRITE_CHAR:
     bne @enter_key_not_pressed
 ; here enter key was pressed...
     ldx #$01
-    stx SCRATCH_DATA_RAM ; indicate to clear current line
+    stx SCRATCH_DATA_RAM ; indicate to clear current line and check for scroll
     ; determine how many bytes to add to get to next line on display...
-    lda #$27            ; load with 40
+    lda #$27            ; load with 40 (or 40-1)
     SEC
     sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
     adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
