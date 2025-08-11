@@ -18,14 +18,18 @@
 CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $40, $0f, $00, $00, $00, $00
 CRTC_CURSOR_H = $0E ; REG 14
 CRTC_CURSOR_L = $0F ; REG 15
+CRTC_START_H = $0C
+CRTC_START_L = $0D
 CRTC_ADDRESS = $8900
 CRTC_REGISTER = $8901
 CHAR_RAM = $9000
-CHAR_RAM_END = $94B0
+CHAR_RAM_END = $9800
 CHAR_RAM_DEFAULT_VALUE = $00
 COLOR_RAM = $9800
-COLOR_RAM_END = $9CB0
+COLOR_RAM_END = $A000
 COLOR_RAM_DEFAULT_VALUE = $0f
+LINE_NUM_CHARS = $28 ; 40 chars per line
+MAX_LINE = $1D ; 30 lines, so line 29 is max
 
 ; sets MC6845 cursor pos
 .macro _set_cursor_pos
@@ -58,34 +62,6 @@ COLOR_RAM_DEFAULT_VALUE = $0f
     _set_cursor_pos
 .endmacro
 
-VIDEO_SCROLL:
-;12 high
-;13 low
-    pha
-    lda VIDEO_SCROLL_POS
-    clc
-    adc #$28
-    bcc @no_scroll_carry
-    inc VIDEO_SCROLL_POS+1
-
-@no_scroll_carry:
-    sta VIDEO_SCROLL_POS
-
-    lda #$0d
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS
-    sta CRTC_REGISTER
-
-    lda #$0c
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS+1
-    sta CRTC_REGISTER
-
-    pla
-    jmp RESET_WOZMON
-
-    
-
 ; Alters A, X, Y registers!
 INIT_CRTC:
     ldx #$00    ; crtc register address
@@ -105,95 +81,141 @@ INIT_CRTC:
     rts
 
 VIDEO_CLEAR:
-    jsr VIDEO_CLEAR_CHAR_RAM
-    jsr VIDEO_CLEAR_COLOR_RAM
-
-    rts
-
-; Uses A, Y regs
-; Also uses CURSOR_ADDRESS_PTR
-VIDEO_CLEAR_CHAR_RAM:
     pha
     phy
-    ; init cursor address pointer to beginning of video ram
+
+    ;clear char ram
+    lda #CHAR_RAM_DEFAULT_VALUE
+    sta SCRATCH_DATA_RAM
     lda #<CHAR_RAM
     sta CURSOR_ADDRESS_PTR
     lda #>CHAR_RAM
     sta CURSOR_ADDRESS_PTR+1
-    lda #CHAR_RAM_DEFAULT_VALUE
-@loop:
-    sta (CURSOR_ADDRESS_PTR)
-    inc CURSOR_ADDRESS_PTR
-    beq @inc_high_byte
-@check_if_done:
-    ldy CURSOR_ADDRESS_PTR+1
-    cpy #>CHAR_RAM_END
-    bne @loop
-    ldy CURSOR_ADDRESS_PTR
-    cpy #<CHAR_RAM_END
-    beq @clear_done
-    jmp @loop
-@inc_high_byte:
-    inc CURSOR_ADDRESS_PTR+1
-    jmp @check_if_done
-@clear_done:
-    ply
-    pla
+    lda #<CHAR_RAM_END
+    sta SCRATCH_ADDR_RAM
+    lda #>CHAR_RAM_END
+    sta SCRATCH_ADDR_RAM+1
+    jsr @video_clear_ram
 
-    _reset_vid_ptrs
-
-    rts
-
-; Uses A, Y regs
-; Also uses CURSOR_ADDRESS_PTR
-VIDEO_CLEAR_COLOR_RAM:
-    pha
-    phy
-    ; init cursor address pointer to beginning of video ram
+    lda #COLOR_RAM_DEFAULT_VALUE
+    sta SCRATCH_DATA_RAM
     lda #<COLOR_RAM
     sta CURSOR_ADDRESS_PTR
     lda #>COLOR_RAM
     sta CURSOR_ADDRESS_PTR+1
-    lda #COLOR_RAM_DEFAULT_VALUE
+    lda #<COLOR_RAM_END
+    sta SCRATCH_ADDR_RAM
+    lda #>COLOR_RAM_END
+    sta SCRATCH_ADDR_RAM+1
+    jsr @video_clear_ram    
+
+    _reset_vid_ptrs
+
+    ply
+    pla
+
+    rts
+
+; Uses A, Y regs
+; Also uses 
+;   CURSOR_ADDRESS_PTR - used to calculate address to clear
+;   SCRATCH_ADDR_RAM - end address to clear to
+;   SCRATCH_DATA_RAM - value to set ram to 
+@video_clear_ram:
+    lda SCRATCH_DATA_RAM
 @loop:
     sta (CURSOR_ADDRESS_PTR)
     inc CURSOR_ADDRESS_PTR
     beq @inc_high_byte
 @check_if_done:
     ldy CURSOR_ADDRESS_PTR+1
-    cpy #>COLOR_RAM_END
+    cpy SCRATCH_ADDR_RAM+1
     bne @loop
     ldy CURSOR_ADDRESS_PTR
-    cpy #<COLOR_RAM_END
+    cpy SCRATCH_ADDR_RAM
     beq @clear_done
     jmp @loop
 @inc_high_byte:
     inc CURSOR_ADDRESS_PTR+1
     jmp @check_if_done
 @clear_done:
-    ply
-    pla
+    rts
 
-    _reset_vid_ptrs
+; clear current line
+VIDEO_CLEAR_LINE:
+    ;find beginning of line...
+    lda CURSOR_ADDRESS_PTR
+    sta SCRATCH_ADDR_RAM
+    lda CURSOR_ADDRESS_PTR+1
+    sta SCRATCH_ADDR_RAM+1
+    lda SCRATCH_ADDR_RAM
+    sec
+    sbc CURSOR_X_POS
+    bpl @no_low_255_rollover
+    dec SCRATCH_ADDR_RAM+1
+@no_low_255_rollover:
+    sta SCRATCH_ADDR_RAM
+    ldx #$00
+    lda #CHAR_RAM_DEFAULT_VALUE
+@loop:
+    sta (SCRATCH_ADDR_RAM)
+    inx
+    cpx #LINE_NUM_CHARS
+    beq @exit
+    jmp @loop
+@exit:
+    rts
+
+VIDEO_SCROLL:
+;12 high
+;13 low
+    lda VIDEO_SCROLL_POS
+    clc
+    adc #$28
+    bcc @no_scroll_carry
+    inc VIDEO_SCROLL_POS+1
+@no_scroll_carry:
+    sta VIDEO_SCROLL_POS
+
+    lda #CRTC_START_L
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS
+    sta CRTC_REGISTER
+
+    lda #CRTC_START_H
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS+1
+    sta CRTC_REGISTER
 
     rts
 
 ; A - register contains ascii character code to write to memory
 ; location pointed at by VIDEO_CURSOR_PTR
 VIDEO_WRITE_CHAR:
-    PHA
-    PHX
+    cmp #$0a ; is it a $0a character?
+    bne @not_0a ; no, continue
+    rts
+@not_0a:
     cmp #$7f ; was it a backspace/delete?
     bne @backspace_not_pressed
     jmp @video_cursor_backspace
 
 @backspace_not_pressed:
+    PHA
+    PHX
+
+    ; set 0 to scratch data, 1 indicates clear current line
+    lda #$00
+    sta SCRATCH_DATA_RAM
 
     ; check if it's the enter key
     cmp #$0D
     bne @enter_key_not_pressed
 
 ; here enter key was pressed...
+    lda #$01
+    sta SCRATCH_DATA_RAM ; indicate to clear current line
+
     ; determine how many bytes to add to get to next line on display...
     lda #$27            ; load with 40
     SEC
@@ -207,17 +229,18 @@ VIDEO_WRITE_CHAR:
     sta CURSOR_ADDRESS_PTR
     lda #$00
     sta CURSOR_X_POS
+
+    lda CURSOR_Y_POS
+    cmp #MAX_LINE
+    beq @dont_inc_y
+    inc CURSOR_Y_POS
+
+@dont_inc_y:
+
     jmp @check_at_max_video_ram
 
 @enter_key_not_pressed:
 
-    cmp #$0a ; is it a $0a character?
-    bne @not_0a ; no, continue
-    PLX
-    PLA
-    rts ; yes just ignore it
-
-@not_0a:
     sta (CURSOR_ADDRESS_PTR)
 
     inc CURSOR_ADDRESS_PTR  ;increment cursor video memory position
@@ -228,6 +251,15 @@ VIDEO_WRITE_CHAR:
     bne @check_256_vid_rollover ; no, skip ahead
     ldx #$00                    ; yes, reset it to 0
     stx CURSOR_X_POS
+
+    lda CURSOR_Y_POS
+    cmp #MAX_LINE
+    beq @dont_inc_y2
+    inc CURSOR_Y_POS
+
+@dont_inc_y2:
+    lda #$01
+    sta SCRATCH_DATA_RAM ; indicate to clear current line
 
 @check_256_vid_rollover:
     ldx CURSOR_ADDRESS_PTR
@@ -245,7 +277,18 @@ VIDEO_WRITE_CHAR:
     stx CURSOR_ADDRESS_PTR
     ldx #>CHAR_RAM
     stx CURSOR_ADDRESS_PTR+1
+
 @exit_video_write_char:
+    lda SCRATCH_DATA_RAM
+    cmp #$00
+    beq @exit
+    jsr VIDEO_CLEAR_LINE
+    ; do we need to adjust the vertical scrolling?
+    lda CURSOR_Y_POS
+    cmp #MAX_LINE
+    bne @exit
+    jsr VIDEO_SCROLL
+@exit:
     _set_cursor_pos
     PLX
     PLA
@@ -253,22 +296,17 @@ VIDEO_WRITE_CHAR:
 
 ; back the cursor up 1 byte in the video ram
 @video_cursor_backspace:
+    phx
+    ldx CURSOR_X_POS
+    cpx #$00
+    beq @exit
     dec CURSOR_ADDRESS_PTR
     dec CURSOR_X_POS
-
-    ldx CURSOR_X_POS
-    cpx #$ff
-    bne @not_x_rollover
-    ldx #$27
-    stx CURSOR_X_POS
-
-@not_x_rollover:
     ldx CURSOR_ADDRESS_PTR
     cpx #$ff
-    bne @exit_video_cursor_backspace
-    dec CURSOR_ADDRESS_PTR+1
-@exit_video_cursor_backspace:
+    bne @video_cursor_backspace_exit
+    dec CURSOR_ADDRESS_PTR+1    
+@video_cursor_backspace_exit:
     _set_cursor_pos
     plx
-    PLA
     rts

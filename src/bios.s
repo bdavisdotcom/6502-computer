@@ -11,6 +11,8 @@ CURSOR_ADDRESS_PTR:   .res 2
 VIDEO_SCROLL_POS:     .res 2
 CURSOR_X_POS:         .res 1
 CURSOR_Y_POS:         .res 1
+SCRATCH_ADDR_RAM:     .res 2
+SCRATCH_DATA_RAM:     .res 1
 
 .segment "INPUT_BUFFER"
 
