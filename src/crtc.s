@@ -166,9 +166,25 @@ VIDEO_CLEAR_LINE:
 @exit:
     rts
 
+; 2048 bytes is memory size
+; 2040 is last position before wrap around, 7f8
 VIDEO_SCROLL:
 ;12 high
 ;13 low
+    ; check will scroll wrap around back to beginning?
+    lda VIDEO_SCROLL_POS+1
+    cmp #$07
+    bne @no_wrap_around
+    lda VIDEO_SCROLL_POS
+    cmp #$f8
+    bne @no_wrap_around
+    ; scroll will wrap back to beginning of memory, so adjust
+    ; since memory size isn't divisible by 40 evenly
+    lda #$00
+    sta VIDEO_SCROLL_POS
+    sta VIDEO_SCROLL_POS+1
+    jmp @set_scroll_pos
+@no_wrap_around:
     lda VIDEO_SCROLL_POS
     clc
     adc #$28
@@ -176,7 +192,7 @@ VIDEO_SCROLL:
     inc VIDEO_SCROLL_POS+1
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
-
+@set_scroll_pos:
     lda #CRTC_START_L
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS
@@ -199,23 +215,18 @@ VIDEO_WRITE_CHAR:
     cmp #$7f ; was it a backspace/delete?
     bne @backspace_not_pressed
     jmp @video_cursor_backspace
-
 @backspace_not_pressed:
     PHA
     PHX
-
     ; set 0 to scratch data, 1 indicates clear current line
-    lda #$00
-    sta SCRATCH_DATA_RAM
-
+    ldx #$00
+    stx SCRATCH_DATA_RAM
     ; check if it's the enter key
     cmp #$0D
     bne @enter_key_not_pressed
-
 ; here enter key was pressed...
-    lda #$01
-    sta SCRATCH_DATA_RAM ; indicate to clear current line
-
+    ldx #$01
+    stx SCRATCH_DATA_RAM ; indicate to clear current line
     ; determine how many bytes to add to get to next line on display...
     lda #$27            ; load with 40
     SEC
@@ -223,44 +234,32 @@ VIDEO_WRITE_CHAR:
     adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
     bcc @no_low_255_rollover
     inc CURSOR_ADDRESS_PTR+1 ; we rolled over 255 on low byte
-    
 @no_low_255_rollover:
-
     sta CURSOR_ADDRESS_PTR
     lda #$00
     sta CURSOR_X_POS
-
     lda CURSOR_Y_POS
     cmp #MAX_LINE
     beq @dont_inc_y
     inc CURSOR_Y_POS
-
 @dont_inc_y:
-
     jmp @check_at_max_video_ram
-
 @enter_key_not_pressed:
-
     sta (CURSOR_ADDRESS_PTR)
-
     inc CURSOR_ADDRESS_PTR  ;increment cursor video memory position
     inc CURSOR_X_POS        ;increment our x char position tracker
-
     ldx CURSOR_X_POS        ; check if we are going to position 40 (next line so 0)
     cpx #$28                ; are we at char position 40?
     bne @check_256_vid_rollover ; no, skip ahead
     ldx #$00                    ; yes, reset it to 0
     stx CURSOR_X_POS
-
     lda CURSOR_Y_POS
     cmp #MAX_LINE
     beq @dont_inc_y2
     inc CURSOR_Y_POS
-
 @dont_inc_y2:
-    lda #$01
-    sta SCRATCH_DATA_RAM ; indicate to clear current line
-
+    ldx #$01
+    stx SCRATCH_DATA_RAM ; indicate to clear current line
 @check_256_vid_rollover:
     ldx CURSOR_ADDRESS_PTR
     cpx #$00
@@ -277,7 +276,6 @@ VIDEO_WRITE_CHAR:
     stx CURSOR_ADDRESS_PTR
     ldx #>CHAR_RAM
     stx CURSOR_ADDRESS_PTR+1
-
 @exit_video_write_char:
     lda SCRATCH_DATA_RAM
     cmp #$00
@@ -299,7 +297,7 @@ VIDEO_WRITE_CHAR:
     phx
     ldx CURSOR_X_POS
     cpx #$00
-    beq @exit
+    beq @video_cursor_backspace_exit
     dec CURSOR_ADDRESS_PTR
     dec CURSOR_X_POS
     ldx CURSOR_ADDRESS_PTR
