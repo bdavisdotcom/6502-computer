@@ -29,7 +29,7 @@ COLOR_RAM = $9800
 COLOR_RAM_END = $A000
 COLOR_RAM_DEFAULT_VALUE = $0f
 LINE_NUM_CHARS = $28 ; 40 chars per line
-MAX_LINE = $1D ; 30 lines, so line 29 is max
+MAX_LINE = $1D ; 30 lines, so 29 is last line
 
 ; sets MC6845 cursor pos
 .macro _set_cursor_pos
@@ -142,23 +142,28 @@ VIDEO_CLEAR:
     rts
 
 ; clear current line
+; assumes cursor address is at beginning of the line
 VIDEO_CLEAR_LINE:
     ;find beginning of line...
     lda CURSOR_ADDRESS_PTR
     sta SCRATCH_ADDR_RAM
     lda CURSOR_ADDRESS_PTR+1
     sta SCRATCH_ADDR_RAM+1
-    lda SCRATCH_ADDR_RAM
-    sec
-    sbc CURSOR_X_POS
-    bpl @no_low_255_rollover
-    dec SCRATCH_ADDR_RAM+1
-@no_low_255_rollover:
-    sta SCRATCH_ADDR_RAM
+;     lda SCRATCH_ADDR_RAM
+;     sec
+;     sbc CURSOR_X_POS
+;     bpl @no_low_255_rollover
+;     dec SCRATCH_ADDR_RAM+1
+; @no_low_255_rollover:
+;     sta SCRATCH_ADDR_RAM
     ldx #$00
     lda #CHAR_RAM_DEFAULT_VALUE
 @loop:
     sta (SCRATCH_ADDR_RAM)
+    inc SCRATCH_ADDR_RAM
+    bne @no_rollover
+    inc SCRATCH_ADDR_RAM+1
+@no_rollover:
     inx
     cpx #LINE_NUM_CHARS
     beq @exit
@@ -172,19 +177,19 @@ VIDEO_SCROLL:
 ;12 high
 ;13 low
     ; check will scroll wrap around back to beginning?
-    lda VIDEO_SCROLL_POS+1
-    cmp #$97
-    bne @no_wrap_around
-    lda VIDEO_SCROLL_POS
-    cmp #$F8
-    bne @no_wrap_around
+    ; lda VIDEO_SCROLL_POS+1
+    ; cmp #$07
+    ; bcc @no_wrap_around
+    ; lda VIDEO_SCROLL_POS
+    ; cmp #$f8
+    ; bcc @no_wrap_around
     ; scroll will wrap back to beginning of memory, so adjust
     ; since memory size isn't divisible by 40 evenly
-    lda #$00
-    sta VIDEO_SCROLL_POS
-    sta VIDEO_SCROLL_POS+1
-    jmp @set_scroll_pos
-@no_wrap_around:
+    ; lda #$00
+    ; sta VIDEO_SCROLL_POS
+    ; sta VIDEO_SCROLL_POS+1
+    ; jmp @set_scroll_pos
+; @no_wrap_around:
     lda VIDEO_SCROLL_POS
     clc
     adc #$28
@@ -192,7 +197,7 @@ VIDEO_SCROLL:
     inc VIDEO_SCROLL_POS+1
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
-@set_scroll_pos:
+; @set_scroll_pos:
     lda #CRTC_START_L
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS
@@ -276,6 +281,8 @@ VIDEO_WRITE_CHAR:
     stx CURSOR_ADDRESS_PTR
     ldx #>CHAR_RAM
     stx CURSOR_ADDRESS_PTR+1
+    ldx #$00
+    stx CURSOR_X_POS
 @exit_video_write_char:
     lda SCRATCH_DATA_RAM
     cmp #$00
