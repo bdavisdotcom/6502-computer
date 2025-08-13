@@ -192,7 +192,7 @@ VIDEO_SCROLL:
 ; @no_wrap_around:
     lda VIDEO_SCROLL_POS
     clc
-    adc #$28
+    adc #LINE_NUM_CHARS
     bcc @no_scroll_carry
     inc VIDEO_SCROLL_POS+1
 @no_scroll_carry:
@@ -233,9 +233,10 @@ VIDEO_WRITE_CHAR:
     ldx #$01
     stx SCRATCH_DATA_RAM ; indicate to clear current line and check for scroll
     ; determine how many bytes to add to get to next line on display...
-    lda #$27            ; load with 40 (or 40-1)
+    lda #LINE_NUM_CHARS          ; load with 40 (or 40-1)
     SEC
     sbc CURSOR_X_POS    ; subtract cursor x position from 40, tells us how many to add to get to next line
+    clc
     adc CURSOR_ADDRESS_PTR ; add value in low byte memory ptr to the amount we need to add
     bcc @no_low_255_rollover
     inc CURSOR_ADDRESS_PTR+1 ; we rolled over 255 on low byte
@@ -254,7 +255,7 @@ VIDEO_WRITE_CHAR:
     inc CURSOR_ADDRESS_PTR  ;increment cursor video memory position
     inc CURSOR_X_POS        ;increment our x char position tracker
     ldx CURSOR_X_POS        ; check if we are going to position 40 (next line so 0)
-    cpx #$28                ; are we at char position 40?
+    cpx #LINE_NUM_CHARS                ; are we at char position 40?
     bne @check_256_vid_rollover ; no, skip ahead
     ldx #$00                    ; yes, reset it to 0
     stx CURSOR_X_POS
