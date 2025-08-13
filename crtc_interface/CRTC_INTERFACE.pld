@@ -13,6 +13,7 @@ pin 2 = clk_in; /* for asynchronous inversion */
 pin 3 = display_interval_in;
 pin 4 = vsync_in;
 pin 5 = hsync_in;
+pin 6 = cursor_in;
 
 pin 14 = !hsync_out; /*  inverted hsync */
 pin 15 = !vsync_out; /*  inverted vsync */
@@ -22,6 +23,7 @@ pin 17 = !shift_load; /* shift register parallel load enable */
 pin 18 = pixel_clk; /* 1/2 clk */
 pin 20 = clk_quarter; /* 6mhz */
 pin 21 = !char_clk; /* 1/8 clock - MC68B45 character clock signal 1.5xx mhz */
+pin 22 = cursor_out;
 pin 23 = clk_half;
 
 Field Counter = [!char_clk, clk_quarter, clk_half];
@@ -50,3 +52,4 @@ SequenceD Counter {
 !blanking_interval_out.d = (!(Counter:6) & !blanking_interval_out) # (Counter:6 & !display_interval_in);
 
 pixel_clk = !clk_in;
+cursor_out.d = (Counter:6 & cursor_in) # (!Counter:6 & cursor_in);

@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Aug 09 08:21:19 2025
+Created         Wed Aug 13 08:41:26 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -40,6 +40,10 @@ clk_quarter.d  =>
     !clk_half & clk_quarter
   # clk_half & !clk_quarter
 
+cursor_out.d  =>
+    !char_clk & !clk_half & clk_quarter & cursor_in
+  # !char_clk & clk_half & !clk_quarter & cursor_in
+
 !hsync_out.d  =>
     char_clk & !hsync_out
   # !clk_quarter & !hsync_out
@@ -71,6 +75,9 @@ clk_half.oe  =>
     1 
 
 clk_quarter.oe  =>
+    1 
+
+cursor_out.oe  =>
     1 
 
 hsync_out.oe  =>
@@ -105,6 +112,9 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     clk_in                      2        V        -       -       -     
     clk_quarter                 20       V        -       -       -     
     clk_quarter         d       20       X        2       14      1     
+    cursor_in                   6        V        -       -       -     
+    cursor_out                  22       V        -       -       -     
+    cursor_out          d       22       X        2       10      1     
     display_interval_in         3        V        -       -       -     
     hsync_in                    5        V        -       -       -     
  !  hsync_out                   14       V        -       -       -     
@@ -119,6 +129,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     char_clk            oe      21       D        1       1       0     
     clk_half            oe      23       D        1       1       0     
     clk_quarter         oe      20       D        1       1       0     
+    cursor_out          oe      22       D        1       1       0     
     hsync_out           oe      14       D        1       1       0     
     pixel_clk           oe      18       D        1       1       0     
     shift_load          oe      17       D        1       1       0     
@@ -151,10 +162,10 @@ Pin #23  05808 Mode  -x
  00308 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00352 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00396 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #22  05810 Mode  xx 
- 00440 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00484 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00528 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #22  05810 Mode  -x 
+ 00440 -------------------------------------------- 
+ 00484 --x--------x---x----x----------------------- 
+ 00528 ---x-------x--x-----x----------------------- 
  00572 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00616 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00660 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -294,10 +305,10 @@ LEGEND    X : fuse not blown
                               |CRTC_INTERFACE|
                       clk x---|1           24|---x Vcc                      
                    clk_in x---|2           23|---x clk_half                 
-      display_interval_in x---|3           22|---x                          
+      display_interval_in x---|3           22|---x cursor_out               
                  vsync_in x---|4           21|---x !char_clk                
                  hsync_in x---|5           20|---x clk_quarter              
-                          x---|6           19|---x                          
+                cursor_in x---|6           19|---x                          
                           x---|7           18|---x pixel_clk                
                           x---|8           17|---x !shift_load              
                           x---|9           16|---x !blanking_interval_o     
