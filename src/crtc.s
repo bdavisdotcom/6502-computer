@@ -149,13 +149,6 @@ VIDEO_CLEAR_LINE:
     sta SCRATCH_ADDR_RAM
     lda CURSOR_ADDRESS_PTR+1
     sta SCRATCH_ADDR_RAM+1
-;     lda SCRATCH_ADDR_RAM
-;     sec
-;     sbc CURSOR_X_POS
-;     bpl @no_low_255_rollover
-;     dec SCRATCH_ADDR_RAM+1
-; @no_low_255_rollover:
-;     sta SCRATCH_ADDR_RAM
     ldx #$00
     lda #CHAR_RAM_DEFAULT_VALUE
 @loop:
@@ -174,22 +167,6 @@ VIDEO_CLEAR_LINE:
 ; 2048 bytes is memory size
 ; 2040 is last position before wrap around, 7f8
 VIDEO_SCROLL:
-;12 high
-;13 low
-    ; check will scroll wrap around back to beginning?
-    ; lda VIDEO_SCROLL_POS+1
-    ; cmp #$07
-    ; bcc @no_wrap_around
-    ; lda VIDEO_SCROLL_POS
-    ; cmp #$f8
-    ; bcc @no_wrap_around
-    ; scroll will wrap back to beginning of memory, so adjust
-    ; since memory size isn't divisible by 40 evenly
-    ; lda #$00
-    ; sta VIDEO_SCROLL_POS
-    ; sta VIDEO_SCROLL_POS+1
-    ; jmp @set_scroll_pos
-; @no_wrap_around:
     lda VIDEO_SCROLL_POS
     clc
     adc #LINE_NUM_CHARS
@@ -197,7 +174,6 @@ VIDEO_SCROLL:
     inc VIDEO_SCROLL_POS+1
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
-; @set_scroll_pos:
     lda #CRTC_START_L
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS
@@ -313,6 +289,61 @@ VIDEO_WRITE_CHAR:
     bne @video_cursor_backspace_exit
     dec CURSOR_ADDRESS_PTR+1    
 @video_cursor_backspace_exit:
+    ; erase value at that location
+    lda #CHAR_RAM_DEFAULT_VALUE
+    sta (CURSOR_ADDRESS_PTR)
     _set_cursor_pos
     plx
+    rts
+
+HEX_TO_ASCII:
+    PHX
+
+    TAX
+    LSR A           ; Shift right 4 times to isolate the high nibble
+    LSR A
+    LSR A
+    LSR A
+    JSR @NIBBLE_TO_ASCII
+    STA SCRATCH_ADDR_RAM  ; Store high nibble ASCII in HEX_STRING
+
+    TXA            ; Restore original byte
+    AND #$0F        ; Mask to isolate the low nibble
+    JSR @NIBBLE_TO_ASCII
+    STA SCRATCH_ADDR_RAM+1 ; Store low nibble ASCII in HEX_STRING+1
+
+    PLX
+    RTS             ; Return
+
+@NIBBLE_TO_ASCII:
+    CMP #$0A        ; Check if nibble is 0-9
+    BCC @DIGIT       ; If less than 10, it's a digit
+    ADC #$06        ; Add 6 to convert to ASCII letter (A-F)
+@DIGIT:
+    ADC #$30        ; Add 48 to convert to ASCII digit
+    RTS             ; Return
+
+VIDEO_SCROLL_TEST:
+    ldx #$00
+@test_loop:
+    lda VIDEO_SCROLL_POS
+    clc
+    adc #LINE_NUM_CHARS
+    bcc @no_scroll_carry
+    inc VIDEO_SCROLL_POS+1
+@no_scroll_carry:
+    sta VIDEO_SCROLL_POS
+    lda #CRTC_START_L
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS
+    sta CRTC_REGISTER
+
+    lda #CRTC_START_H
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS+1
+    sta CRTC_REGISTER
+@pause:
+    inx
+    bne @pause
+    jmp @test_loop
     rts
