@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Wed Aug 13 08:41:26 2025
+Created         Fri Aug 15 09:29:10 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -41,8 +41,10 @@ clk_quarter.d  =>
   # clk_half & !clk_quarter
 
 cursor_out.d  =>
-    !char_clk & !clk_half & clk_quarter & cursor_in
-  # !char_clk & clk_half & !clk_quarter & cursor_in
+    char_clk & cursor_out
+  # !clk_quarter & cursor_out
+  # clk_half & cursor_out
+  # !char_clk & !clk_half & clk_quarter & cursor_in
 
 !hsync_out.d  =>
     char_clk & !hsync_out
@@ -62,8 +64,8 @@ pixel_clk =>
 !vsync_out.d  =>
     char_clk & !vsync_out
   # !clk_quarter & !vsync_out
-  # clk_half & !vsync_out
-  # !char_clk & !clk_half & clk_quarter & !vsync_in
+  # !clk_half & !vsync_out
+  # !char_clk & clk_half & clk_quarter & !vsync_in
 
 blanking_interval_out.oe  =>
     1 
@@ -114,7 +116,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     clk_quarter         d       20       X        2       14      1     
     cursor_in                   6        V        -       -       -     
     cursor_out                  22       V        -       -       -     
-    cursor_out          d       22       X        2       10      1     
+    cursor_out          d       22       X        4       10      1     
     display_interval_in         3        V        -       -       -     
     hsync_in                    5        V        -       -       -     
  !  hsync_out                   14       V        -       -       -     
@@ -164,10 +166,10 @@ Pin #23  05808 Mode  -x
  00396 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #22  05810 Mode  -x 
  00440 -------------------------------------------- 
- 00484 --x--------x---x----x----------------------- 
- 00528 ---x-------x--x-----x----------------------- 
- 00572 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00616 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00484 -------x--x--------------------------------- 
+ 00528 -------x------x----------------------------- 
+ 00572 ---x---x------------------------------------ 
+ 00616 --x--------x---x----x----------------------- 
  00660 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00704 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00748 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -274,8 +276,8 @@ Pin #15  05824 Mode  -x
  04884 -------------------------------------------- 
  04928 ----------x------------------------x-------- 
  04972 --------------x--------------------x-------- 
- 05016 ---x-------------------------------x-------- 
- 05060 --x--------x-x-x---------------------------- 
+ 05016 --x--------------------------------x-------- 
+ 05060 ---x-------x-x-x---------------------------- 
  05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

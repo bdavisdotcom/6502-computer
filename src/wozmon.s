@@ -172,5 +172,10 @@ PRHEX:
                 ADC     #$06            ; Add offset for letter.
 
 ECHO:
-                JSR     CHROUT
-                RTS
+                STA     ACIA_DATA       ; Output character.
+                PHA                     ; Save A.
+                LDA     #$FF            ; Initialize delay loop.
+TXDELAY:        DEC                     ; Decrement A.
+                BNE     TXDELAY         ; Until A gets to 0.
+                PLA                     ; Restore A.
+                RTS                     ; Return.

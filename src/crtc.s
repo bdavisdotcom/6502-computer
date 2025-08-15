@@ -15,7 +15,7 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1d, $00, $0f, $40, $0f, $00, $00, $00, $00
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1D, $00, $0f, $60, $0f, $00, $00, $00, $00
 CRTC_CURSOR_H = $0E ; REG 14
 CRTC_CURSOR_L = $0F ; REG 15
 CRTC_START_H = $0C
@@ -27,9 +27,9 @@ CHAR_RAM_END = $9800
 CHAR_RAM_DEFAULT_VALUE = $00
 COLOR_RAM = $9800
 COLOR_RAM_END = $A000
-COLOR_RAM_DEFAULT_VALUE = $0f
+COLOR_RAM_DEFAULT_VALUE = $1B
 LINE_NUM_CHARS = $28 ; 40 chars per line
-MAX_LINE = $1D ; 30 lines, so 29 is last line
+MAX_LINE = $1E ; 30 lines, so 29 is last line
 
 ; sets MC6845 cursor pos
 .macro _set_cursor_pos
@@ -166,7 +166,7 @@ VIDEO_CLEAR_LINE:
 
 ; 2048 bytes is memory size
 ; 2040 is last position before wrap around, 7f8
-VIDEO_SCROLL:
+VIDEO_SCROLL_UP:
     lda VIDEO_SCROLL_POS
     clc
     adc #LINE_NUM_CHARS
@@ -174,16 +174,16 @@ VIDEO_SCROLL:
     inc VIDEO_SCROLL_POS+1
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
-    lda #CRTC_START_L
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS
-    sta CRTC_REGISTER
-
-    lda #CRTC_START_H
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS+1
-    sta CRTC_REGISTER
-
+    
+    LDA VIDEO_SCROLL_POS+1
+    CMP #$03
+    BNE @exit
+    LDA VIDEO_SCROLL_POS
+    CMP #$C0
+    BNE @exit
+    LDA #$C8
+    STA VIDEO_SCROLL_POS
+@exit:
     rts
 
 ; A - register contains ascii character code to write to memory
@@ -269,9 +269,10 @@ VIDEO_WRITE_CHAR:
     lda CURSOR_Y_POS
     cmp #MAX_LINE
     bne @exit
-    jsr VIDEO_SCROLL
+    jsr VIDEO_SCROLL_UP
 @exit:
     _set_cursor_pos
+    jsr SET_SCROLL
     PLX
     PLA
     rts
@@ -331,8 +332,23 @@ VIDEO_SCROLL_TEST:
     adc #LINE_NUM_CHARS
     bcc @no_scroll_carry
     inc VIDEO_SCROLL_POS+1
+    clc
+    ADC #$08
+
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
+
+    LDA VIDEO_SCROLL_POS+1
+    CMP #$04
+    BCC @CONTINUE
+    LDA VIDEO_SCROLL_POS
+    CMP #$88
+    BCC @CONTINUE
+    LDA #$00
+    STA VIDEO_SCROLL_POS
+    STA VIDEO_SCROLL_POS+1
+
+@CONTINUE:
     lda #CRTC_START_L
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS
@@ -342,8 +358,77 @@ VIDEO_SCROLL_TEST:
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS+1
     sta CRTC_REGISTER
-@pause:
-    inx
-    bne @pause
+
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE            
+
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE    
+
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE    
+
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE
+    JSR PAUSE        
+
     jmp @test_loop
+    rts
+
+PAUSE:
+    LDX #$00
+@PAUSE_LOOP:
+    inx
+    BNE @PAUSE_LOOP
+    RTS
+
+SET_SCROLL:
+    lda #CRTC_START_L
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS
+    sta CRTC_REGISTER
+
+    lda #CRTC_START_H
+    sta CRTC_ADDRESS
+    lda VIDEO_SCROLL_POS+1
+    sta CRTC_REGISTER
     rts

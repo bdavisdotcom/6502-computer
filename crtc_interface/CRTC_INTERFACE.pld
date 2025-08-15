@@ -52,4 +52,4 @@ SequenceD Counter {
 !blanking_interval_out.d = (!(Counter:6) & !blanking_interval_out) # (Counter:6 & !display_interval_in);
 
 pixel_clk = !clk_in;
-cursor_out.d = (Counter:6 & cursor_in) # (!Counter:6 & cursor_in);
+cursor_out.d = (!(Counter:6) & cursor_out) # (Counter:6 & cursor_in);
