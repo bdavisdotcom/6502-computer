@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Mon Aug 04 11:15:08 2025
+Created         Sat Aug 16 08:06:55 2025
 Name            ADDR_DECODER
 Partno          01
 Revision        01
@@ -26,13 +26,13 @@ ADDRESS_IO =>
     A15 , A14 , A13 , A12 , A11 , A10 , A9 , A8
 
 CHAR_RAM_CE =>
-    !A11 & A12 & !A13 & !A14 & A15
+    !A11 & A12 & !A13 & !A14 & A15 & CLK
 
 CLK_INVERT =>
     !CLK
 
 COLOR_RAM_CE =>
-    A11 & A12 & !A13 & !A14 & A15
+    A11 & A12 & !A13 & !A14 & A15 & CLK
 
 CPU_INTERRUPT =>
     ACIA_INTERRUPT & VIA_INTERRUPT
@@ -188,7 +188,7 @@ Pin #20  05814 Mode  x-
  02112 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #19  05816 Mode  x- 
  02156 -------------------------------------------- 
- 02200 ----x----x---x--x----x---------------------- 
+ 02200 x---x----x---x--x----x---------------------- 
  02244 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02288 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02332 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -206,7 +206,7 @@ Pin #19  05816 Mode  x-
  02860 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #18  05818 Mode  x- 
  02904 -------------------------------------------- 
- 02948 ----x----x---x--x---x----------------------- 
+ 02948 x---x----x---x--x---x----------------------- 
  02992 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03036 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  03080 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

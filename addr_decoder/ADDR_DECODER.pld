@@ -43,8 +43,8 @@ Pin 23 = !ROM_CE;
 FIELD ADDRESS_IO = [A15..A08];
 
 ROM_CE =      ADDRESS_IO:[A000..FFFF];      /* (A15 & A14) # (A15 & !A14 & A13); */
-COLOR_RAM_CE= ADDRESS_IO:[9800..9FFF];      /* CLK & A15 & !A14 & !A13 & A12; */
-CHAR_RAM_CE = ADDRESS_IO:[9000..97FF];      /* CLK & A15 & !A14 & !A13 & !A12 & A11; */
+COLOR_RAM_CE= ADDRESS_IO:[9800..9FFF] & CLK;      /* CLK & A15 & !A14 & !A13 & A12; */
+CHAR_RAM_CE = ADDRESS_IO:[9000..97FF] & CLK;      /* CLK & A15 & !A14 & !A13 & !A12 & A11; */
 CRTC_CE =     ADDRESS_IO:[8900..89FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08; */
 VIA0_CE =     ADDRESS_IO:[8100..81FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08; */
 ACIA_CE =     ADDRESS_IO:[8000..80FF];      /* A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08; */
