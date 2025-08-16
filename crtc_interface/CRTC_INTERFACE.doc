@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Aug 16 08:46:17 2025
+Created         Sat Aug 16 09:02:37 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -65,11 +65,11 @@ pixel_clk =>
   # clk_half
   # !display_interval_in
 
-vsync_out.d  =>
-    !char_clk & !clk_half & clk_quarter & vsync_in
-  # char_clk & vsync_out
-  # !clk_quarter & vsync_out
-  # clk_half & vsync_out
+!vsync_out.d  =>
+    char_clk & !vsync_out
+  # !clk_quarter & !vsync_out
+  # clk_half & !vsync_out
+  # !char_clk & !clk_half & clk_quarter & !vsync_in
 
 blanking_interval_out.oe  =>
     1 
@@ -282,12 +282,12 @@ Pin #16  05822 Mode  -x
  04752 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04796 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  04840 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #15  05824 Mode  xx 
+Pin #15  05824 Mode  -x 
  04884 -------------------------------------------- 
- 04928 --x--------xx--x---------------------------- 
- 04972 ----------x------------------------x-------- 
- 05016 --------------x--------------------x-------- 
- 05060 ---x-------------------------------x-------- 
+ 04928 ----------x------------------------x-------- 
+ 04972 --------------x--------------------x-------- 
+ 05016 ---x-------------------------------x-------- 
+ 05060 --x--------x-x-x---------------------------- 
  05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
