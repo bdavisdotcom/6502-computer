@@ -65,11 +65,11 @@ pixel_clk =>
   # !clk_half
   # !display_interval_in
 
-!vsync_out.d  =>
-    char_clk & !vsync_out
+vsync_out.d  =>
+    !char_clk & clk_half & !clk_quarter & vsync_in
+  # char_clk & !vsync_out
   # clk_quarter & !vsync_out
   # !clk_half & !vsync_out
-  # !char_clk & clk_half & !clk_quarter & !vsync_in
 
 blanking_interval_out.oe  =>
     1 

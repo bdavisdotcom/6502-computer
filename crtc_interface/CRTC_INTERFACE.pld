@@ -54,4 +54,9 @@ SequenceD Counter {
 
 pixel_clk = !clk_in;
 cursor_out.d = (!(Counter:6) & cursor_out) # (Counter:6 & cursor_in);
+
+ /* needs extra delay - color data doesn't go through a shift reg like the char generation data does, so it arrives 3 clks earlier
+    and, thus, needs extra delay to compensate for this
+    otherwise, color arrives to pixel generator earlier than the character data
+    causing the colors to show up in the middle of an earlier character */
 !color_clk.d = Counter:6 # Counter:7 # Counter:0 # Counter:1;
