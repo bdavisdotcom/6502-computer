@@ -5,6 +5,7 @@ PIN   1 =  clk
 PIN  23 =  clk_half 
 PIN   2 =  clk_in 
 PIN  20 =  clk_quarter 
+PIN  19 = !color_clk 
 PIN   6 =  cursor_in 
 PIN  22 =  cursor_out 
 PIN   3 =  display_interval_in 
@@ -39,6 +40,10 @@ clk_quarter.d  =>
     clk_half & !clk_quarter
   # !clk_half & clk_quarter
 
+!color_clk.d  =>
+    !char_clk & !clk_quarter
+  # char_clk & clk_quarter
+
 cursor_out.d  =>
     char_clk & !cursor_out
   # clk_quarter & !cursor_out
@@ -63,8 +68,8 @@ pixel_clk =>
 !vsync_out.d  =>
     char_clk & !vsync_out
   # clk_quarter & !vsync_out
-  # clk_half & !vsync_out
-  # !char_clk & !clk_half & !clk_quarter & !vsync_in
+  # !clk_half & !vsync_out
+  # !char_clk & clk_half & !clk_quarter & !vsync_in
 
 blanking_interval_out.oe  =>
     1 
@@ -76,6 +81,9 @@ clk_half.oe  =>
     1 
 
 clk_quarter.oe  =>
+    1 
+
+color_clk.oe  =>
     1 
 
 cursor_out.oe  =>

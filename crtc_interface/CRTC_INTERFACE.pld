@@ -21,6 +21,7 @@ pin 16 = !blanking_interval_out;
 pin 17 = !shift_load; /* shift register parallel load enable */
 
 pin 18 = pixel_clk; /* 1/2 clk */
+pin 19 = !color_clk;
 pin 20 = clk_quarter; /* 6mhz */
 pin 21 = !char_clk; /* 1/8 clock - MC68B45 character clock signal 1.5xx mhz */
 pin 22 = cursor_out;
@@ -53,3 +54,4 @@ SequenceD Counter {
 
 pixel_clk = !clk_in;
 cursor_out.d = (!(Counter:6) & cursor_out) # (Counter:6 & cursor_in);
+!color_clk.d = Counter:6 # Counter:7 # Counter:0 # Counter:1;

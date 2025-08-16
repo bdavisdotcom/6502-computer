@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Fri Aug 15 09:29:10 2025
+Created         Sat Aug 16 07:24:18 2025
 Name            CRTC_INTERFACE
 Partno          00
 Revision        :   01
@@ -40,6 +40,10 @@ clk_quarter.d  =>
     !clk_half & clk_quarter
   # clk_half & !clk_quarter
 
+!color_clk.d  =>
+    !char_clk & clk_quarter
+  # char_clk & !clk_quarter
+
 cursor_out.d  =>
     char_clk & cursor_out
   # !clk_quarter & cursor_out
@@ -64,8 +68,8 @@ pixel_clk =>
 !vsync_out.d  =>
     char_clk & !vsync_out
   # !clk_quarter & !vsync_out
-  # !clk_half & !vsync_out
-  # !char_clk & clk_half & clk_quarter & !vsync_in
+  # clk_half & !vsync_out
+  # !char_clk & !clk_half & clk_quarter & !vsync_in
 
 blanking_interval_out.oe  =>
     1 
@@ -77,6 +81,9 @@ clk_half.oe  =>
     1 
 
 clk_quarter.oe  =>
+    1 
+
+color_clk.oe  =>
     1 
 
 cursor_out.oe  =>
@@ -114,6 +121,8 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     clk_in                      2        V        -       -       -     
     clk_quarter                 20       V        -       -       -     
     clk_quarter         d       20       X        2       14      1     
+ !  color_clk                   19       V        -       -       -     
+ !  color_clk           d       19       X        2       16      1     
     cursor_in                   6        V        -       -       -     
     cursor_out                  22       V        -       -       -     
     cursor_out          d       22       X        4       10      1     
@@ -131,6 +140,7 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     char_clk            oe      21       D        1       1       0     
     clk_half            oe      23       D        1       1       0     
     clk_quarter         oe      20       D        1       1       0     
+    color_clk           oe      19       D        1       1       0     
     cursor_out          oe      22       D        1       1       0     
     hsync_out           oe      14       D        1       1       0     
     pixel_clk           oe      18       D        1       1       0     
@@ -206,10 +216,10 @@ Pin #20  05814 Mode  -x
  02024 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02068 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02112 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #19  05816 Mode  xx 
- 02156 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 02200 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 02244 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #19  05816 Mode  -x 
+ 02156 -------------------------------------------- 
+ 02200 -----------x---x---------------------------- 
+ 02244 ----------x---x----------------------------- 
  02288 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02332 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02376 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -276,8 +286,8 @@ Pin #15  05824 Mode  -x
  04884 -------------------------------------------- 
  04928 ----------x------------------------x-------- 
  04972 --------------x--------------------x-------- 
- 05016 --x--------------------------------x-------- 
- 05060 ---x-------x-x-x---------------------------- 
+ 05016 ---x-------------------------------x-------- 
+ 05060 --x--------x-x-x---------------------------- 
  05104 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05148 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -310,7 +320,7 @@ LEGEND    X : fuse not blown
       display_interval_in x---|3           22|---x cursor_out               
                  vsync_in x---|4           21|---x !char_clk                
                  hsync_in x---|5           20|---x clk_quarter              
-                cursor_in x---|6           19|---x                          
+                cursor_in x---|6           19|---x !color_clk               
                           x---|7           18|---x pixel_clk                
                           x---|8           17|---x !shift_load              
                           x---|9           16|---x !blanking_interval_o     
