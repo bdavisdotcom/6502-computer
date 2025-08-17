@@ -75,18 +75,6 @@ RESET:
     ; perform RAM test
     jsr MEM_TEST
 
-    lda #<INIT_CRTC_MSG
-    sta $10
-    lda #>INIT_CRTC_MSG
-    sta $11
-    jsr PRINT_STR
-
-    lda #<RUNNING_WOZMON
-    sta $10
-    lda #>RUNNING_WOZMON
-    sta $11
-    jsr PRINT_STR
-
     ; start wozmon
     JMP RESET_WOZMON    ; start running WOZMON!
 

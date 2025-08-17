@@ -1,8 +1,8 @@
 .segment "BIOS"
 
-RAM_TEST_MSG:   .byte "Running RAM self test...", $0d, $0a, $00
-RAM_TEST_WRITE: .byte "RAM writes...", $0d, $0a, $00
-RAM_TEST_READ:  .byte "RAM reads...", $0d, $0a, $00
+RAM_TEST_MSG:   .byte "Running RAM self test...", $00
+; RAM_TEST_WRITE: .byte "RAM writes...", $0d, $0a, $00
+; RAM_TEST_READ:  .byte "RAM reads...", $0d, $0a, $00
 RAM_TEST_FAIL:  .byte "FAIL!", $0d, $0a, $00
 RAM_TEST_PASS:  .byte "SUCCESS!", $0d, $0a, $00
 RAM_TEST_START = $0200
@@ -42,20 +42,14 @@ MEM_TEST:
     jmp @memory_addr_loop
 
 @memory_write_done:
-    lda #<RAM_TEST_WRITE
-    sta $10
-    lda #>RAM_TEST_WRITE
-    sta $11
-    jsr PRINT_STR
+    ; lda #<RAM_TEST_WRITE
+    ; sta $10
+    ; lda #>RAM_TEST_WRITE
+    ; sta $11
+    ; jsr PRINT_STR
 .endproc
 
 .proc mem_test_read
-
-    lda #<RAM_TEST_READ
-    sta $10
-    lda #>RAM_TEST_READ
-    sta $11
-    jsr PRINT_STR
 
     ; load A with start address of memory test
     ; start after stack page $0200
