@@ -15,7 +15,7 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1e, $1E, $00, $0f, $60, $0f, $00, $00, $00, $00
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1d, $1d, $00, $0f, $60, $0f, $00, $00, $00, $00
 CRTC_CURSOR_H = $0E ; REG 14
 CRTC_CURSOR_L = $0F ; REG 15
 CRTC_START_H = $0C
@@ -29,7 +29,7 @@ COLOR_RAM = $9800
 COLOR_RAM_END = $A000
 COLOR_RAM_DEFAULT_VALUE = $1B
 LINE_NUM_CHARS = $28 ; 40 chars per line
-MAX_LINE = $1E ; 30 lines, so 29 is last line
+MAX_LINE = $1D ; 29 lines, so 28 is last line (0-28)
 
 ; sets MC6845 cursor pos
 .macro _set_cursor_pos
