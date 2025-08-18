@@ -15,7 +15,7 @@
 ;R14 :  0 - Cursor Start Address (High). Cursor will be at position (0, 0).
 ;R15 :  0 - Cursor Start Address (Low). Cursor will be at position (0, 0).
 ;                    r0   r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12  r13  r14  r15
-CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $1d, $1d, $00, $0f, $60, $0f, $00, $00, $00, $00
+CRTC_SETTINGS: .byte $31, $28, $29, $06, $1f, $0d, $19, $1d, $00, $0f, $60, $0f, $00, $00, $00, $00
 CRTC_CURSOR_H = $0E ; REG 14
 CRTC_CURSOR_L = $0F ; REG 15
 CRTC_START_H = $0C
@@ -29,7 +29,7 @@ COLOR_RAM = $9800
 COLOR_RAM_END = $A000
 COLOR_RAM_DEFAULT_VALUE = $1B
 LINE_NUM_CHARS = $28 ; 40 chars per line
-MAX_LINE = $1D ; 29 lines, so 28 is last line (0-28)
+MAX_LINE = $19 ; 25 lines, so 24 is last line (0-24)
 
 ; sets MC6845 cursor pos
 .macro _set_cursor_pos
@@ -176,13 +176,14 @@ VIDEO_SCROLL_UP:
     sta VIDEO_SCROLL_POS
     
     LDA VIDEO_SCROLL_POS+1
-    CMP #$03
+    CMP #$07
     BNE @exit
     LDA VIDEO_SCROLL_POS
-    CMP #$C0
+    CMP #$D0
     BNE @exit
-    LDA #$C8
+    LDA #$00
     STA VIDEO_SCROLL_POS
+    STA VIDEO_SCROLL_POS+1
 @exit:
     rts
 
@@ -208,6 +209,7 @@ VIDEO_WRITE_CHAR:
 ; here enter key was pressed...
     ldx #$01
     stx SCRATCH_DATA_RAM ; indicate to clear current line and check for scroll
+
     ; determine how many bytes to add to get to next line on display...
     lda #LINE_NUM_CHARS          ; load with 40 (or 40-1)
     SEC
@@ -254,17 +256,29 @@ VIDEO_WRITE_CHAR:
     ldx CURSOR_ADDRESS_PTR
     cpx #<CHAR_RAM_END
     bcc @exit_video_write_char
-    ldx #<CHAR_RAM
-    stx CURSOR_ADDRESS_PTR
-    ldx #>CHAR_RAM
-    stx CURSOR_ADDRESS_PTR+1
-    ldx #$00
-    stx CURSOR_X_POS
+
+    LDA #$71
+    STA $9900
+    SEC
+    LDA CURSOR_ADDRESS_PTR
+    SBC #<CHAR_RAM_END
+    STA CURSOR_ADDRESS_PTR
+    LDA CURSOR_ADDRESS_PTR+1
+    SBC #>CHAR_RAM_END
+    CLC
+    ADC #>CHAR_RAM
+    STA CURSOR_ADDRESS_PTR+1
+    ; ldx #<CHAR_RAM
+    ; stx CURSOR_ADDRESS_PTR
+    ; ldx #>CHAR_RAM
+    ; stx CURSOR_ADDRESS_PTR+1
+    ; ldx #$00
+    ; stx CURSOR_X_POS
 @exit_video_write_char:
     lda SCRATCH_DATA_RAM
     cmp #$00
     beq @exit
-    jsr VIDEO_CLEAR_LINE
+    ; jsr VIDEO_CLEAR_LINE
     ; do we need to adjust the vertical scrolling?
     lda CURSOR_Y_POS
     cmp #MAX_LINE
@@ -297,6 +311,8 @@ VIDEO_WRITE_CHAR:
     plx
     rts
 
+; SCRATCH_ADDR_RAM CONTAINS ADDRESS TO
+; ADD 8 BYTES ON
 HEX_TO_ASCII:
     PHX
 
@@ -326,27 +342,25 @@ HEX_TO_ASCII:
 
 VIDEO_SCROLL_TEST:
     ldx #$00
+    LDY #$00
 @test_loop:
     lda VIDEO_SCROLL_POS
     clc
     adc #LINE_NUM_CHARS
     bcc @no_scroll_carry
     inc VIDEO_SCROLL_POS+1
-    clc
-    ADC #$08
-
 @no_scroll_carry:
     sta VIDEO_SCROLL_POS
 
     LDA VIDEO_SCROLL_POS+1
-    CMP #$04
-    BCC @CONTINUE
+    CMP SCRATCH_ADDR_RAM+1
+    BNE @CONTINUE
     LDA VIDEO_SCROLL_POS
-    CMP #$88
-    BCC @CONTINUE
-    LDA #$00
+    CMP #SCRATCH_ADDR_RAM
+    BNE @CONTINUE
+    CLC
+    ADC #$08
     STA VIDEO_SCROLL_POS
-    STA VIDEO_SCROLL_POS+1
 
 @CONTINUE:
     lda #CRTC_START_L
@@ -411,7 +425,11 @@ VIDEO_SCROLL_TEST:
     JSR PAUSE
     JSR PAUSE        
 
+    CPY #$FF
+    BEQ @DONE
+    INY
     jmp @test_loop
+@DONE:
     rts
 
 PAUSE:
