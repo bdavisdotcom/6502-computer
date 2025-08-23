@@ -141,6 +141,32 @@ VIDEO_CLEAR:
 @clear_done:
     rts
 
+; SCRATCH_ADDR_RAM should have cursor position 
+SET_CURSOR_POSITION:
+    LDA #CRTC_CURSOR_L
+    STA CRTC_ADDRESS
+    LDA SCRATCH_ADDR_RAM
+    STA CRTC_REGISTER
+
+    LDA #CRTC_CURSOR_H
+    STA CRTC_ADDRESS
+    LDA SCRATCH_ADDR_RAM+1
+    STA CRTC_REGISTER
+    RTS
+
+; Loads current cursor address and places in SCRATCH_ADDR_RAM
+GET_CURSOR_POSITION:
+    LDA #CRTC_CURSOR_L
+    STA CRTC_ADDRESS
+    LDA CRTC_REGISTER
+    STA SCRATCH_ADDR_RAM
+
+    LDA #CRTC_CURSOR_H
+    STA CRTC_ADDRESS
+    LDA CRTC_REGISTER
+    STA SCRATCH_ADDR_RAM+1
+    RTS
+
 ; clear current line
 ; assumes cursor address is at beginning of the line
 VIDEO_CLEAR_LINE:
@@ -309,144 +335,4 @@ VIDEO_WRITE_CHAR:
     sta (CURSOR_ADDRESS_PTR)
     _set_cursor_pos
     plx
-    rts
-
-; SCRATCH_ADDR_RAM CONTAINS ADDRESS TO
-; ADD 8 BYTES ON
-HEX_TO_ASCII:
-    PHX
-
-    TAX
-    LSR A           ; Shift right 4 times to isolate the high nibble
-    LSR A
-    LSR A
-    LSR A
-    JSR @NIBBLE_TO_ASCII
-    STA SCRATCH_ADDR_RAM  ; Store high nibble ASCII in HEX_STRING
-
-    TXA            ; Restore original byte
-    AND #$0F        ; Mask to isolate the low nibble
-    JSR @NIBBLE_TO_ASCII
-    STA SCRATCH_ADDR_RAM+1 ; Store low nibble ASCII in HEX_STRING+1
-
-    PLX
-    RTS             ; Return
-
-@NIBBLE_TO_ASCII:
-    CMP #$0A        ; Check if nibble is 0-9
-    BCC @DIGIT       ; If less than 10, it's a digit
-    ADC #$06        ; Add 6 to convert to ASCII letter (A-F)
-@DIGIT:
-    ADC #$30        ; Add 48 to convert to ASCII digit
-    RTS             ; Return
-
-VIDEO_SCROLL_TEST:
-    ldx #$00
-    LDY #$00
-@test_loop:
-    lda VIDEO_SCROLL_POS
-    clc
-    adc #LINE_NUM_CHARS
-    bcc @no_scroll_carry
-    inc VIDEO_SCROLL_POS+1
-@no_scroll_carry:
-    sta VIDEO_SCROLL_POS
-
-    LDA VIDEO_SCROLL_POS+1
-    CMP SCRATCH_ADDR_RAM+1
-    BNE @CONTINUE
-    LDA VIDEO_SCROLL_POS
-    CMP #SCRATCH_ADDR_RAM
-    BNE @CONTINUE
-    CLC
-    ADC #$08
-    STA VIDEO_SCROLL_POS
-
-@CONTINUE:
-    lda #CRTC_START_L
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS
-    sta CRTC_REGISTER
-
-    lda #CRTC_START_H
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS+1
-    sta CRTC_REGISTER
-
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE            
-
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE    
-
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE    
-
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE
-    JSR PAUSE        
-
-    CPY #$FF
-    BEQ @DONE
-    INY
-    jmp @test_loop
-@DONE:
-    rts
-
-PAUSE:
-    LDX #$00
-@PAUSE_LOOP:
-    inx
-    BNE @PAUSE_LOOP
-    RTS
-
-SET_SCROLL:
-    lda #CRTC_START_L
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS
-    sta CRTC_REGISTER
-
-    lda #CRTC_START_H
-    sta CRTC_ADDRESS
-    lda VIDEO_SCROLL_POS+1
-    sta CRTC_REGISTER
     rts
