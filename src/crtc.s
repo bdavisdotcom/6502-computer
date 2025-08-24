@@ -97,7 +97,7 @@ VIDEO_CLEAR:
     LDA #CRTC_CURSOR_H
     STA CRTC_ADDRESS
     LDA #$00
-    STA CRTC_REGISTER    
+    STA CRTC_REGISTER
 
     ply
     pla
@@ -187,6 +187,18 @@ VIDEO_CLEAR_LINE:
     bne @no_rollover
     inc SCRATCH_ADDR_RAM+1
 @no_rollover:
+    ; check to see if hit end of vid memory
+    ldy SCRATCH_ADDR_RAM+1
+    cpy #>CHAR_RAM_END
+    bcc @not_at_end
+    ldy SCRATCH_ADDR_RAM
+    cpy #<CHAR_RAM_END
+    bcc @not_at_end
+    ldy #>CHAR_RAM
+    sty SCRATCH_ADDR_RAM+1
+    ldy #<CHAR_RAM
+    sty SCRATCH_ADDR_RAM
+@not_at_end:
     inx
     cpx #LINE_NUM_CHARS
     beq @exit
@@ -291,7 +303,6 @@ VIDEO_WRITE_CHAR:
     ldx CURSOR_ADDRESS_PTR
     cpx #<CHAR_RAM_END
     bcc @exit_video_write_char
-
     SEC
     LDA CURSOR_ADDRESS_PTR
     SBC #<CHAR_RAM_END
