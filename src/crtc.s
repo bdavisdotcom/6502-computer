@@ -91,14 +91,12 @@ VIDEO_CLEAR:
     ; sets MC6845 cursor pos
     LDA #CRTC_CURSOR_L
     STA CRTC_ADDRESS
-    LDA CURSOR_ADDRESS_PTR
+    LDA #$00
     STA CRTC_REGISTER
 
     LDA #CRTC_CURSOR_H
     STA CRTC_ADDRESS
-    LDA CURSOR_ADDRESS_PTR+1
-    SEC
-    SBC #>CHAR_RAM
+    LDA #$00
     STA CRTC_REGISTER    
 
     ply
@@ -157,6 +155,7 @@ MOVE_CURSOR_POSITION:
     PLX
     RTS
 
+; move cursor back 1 space
 CURSOR_BACKSPACE:
     LDA #CRTC_CURSOR_L
     STA CRTC_ADDRESS
@@ -176,7 +175,6 @@ CURSOR_BACKSPACE:
 ; clear current line
 ; assumes cursor address is at beginning of the line
 VIDEO_CLEAR_LINE:
-    ;find beginning of line...
     lda CURSOR_ADDRESS_PTR
     sta SCRATCH_ADDR_RAM
     lda CURSOR_ADDRESS_PTR+1
@@ -196,7 +194,15 @@ VIDEO_CLEAR_LINE:
 @exit:
     rts
 
-SET_SCROLL:
+VIDEO_SCROLL_UP:
+    lda VIDEO_SCROLL_POS
+    clc
+    adc #LINE_NUM_CHARS
+    bcc @no_scroll_carry
+    inc VIDEO_SCROLL_POS+1
+@no_scroll_carry:
+    sta VIDEO_SCROLL_POS
+    ; send scroll position to the mc6845
     lda #CRTC_START_L
     sta CRTC_ADDRESS
     lda VIDEO_SCROLL_POS
@@ -208,22 +214,12 @@ SET_SCROLL:
     sta CRTC_REGISTER
     rts
 
-VIDEO_SCROLL_UP:
-    lda VIDEO_SCROLL_POS
-    clc
-    adc #LINE_NUM_CHARS
-    bcc @no_scroll_carry
-    inc VIDEO_SCROLL_POS+1
-@no_scroll_carry:
-    sta VIDEO_SCROLL_POS
-    rts
-
 ; A - register contains ascii character code to write to memory
 ; location pointed at by VIDEO_CURSOR_PTR
 VIDEO_WRITE_CHAR:
     cmp #$0a ; is it a $0a character?
     bne @not_0a ; no, continue
-    rts
+    rts ; yes, just ignore it and move along...
 @not_0a:
     cmp #$7f ; was it a backspace/delete?
     bne @backspace_not_pressed
@@ -317,7 +313,6 @@ VIDEO_WRITE_CHAR:
     bne @exit
     jsr VIDEO_SCROLL_UP
 @exit:
-    jsr SET_SCROLL
     PLX
     PLA
     rts

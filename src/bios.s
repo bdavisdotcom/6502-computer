@@ -25,7 +25,6 @@ INPUT_BUFFER:   .res $100
 
 WELCOME_MSG:    .byte "Welcome to Brad's 6502", $0d, $0a, $00
 INIT_CRTC_MSG:    .byte "Initializing CRTC", $0d, $0a, $00
-RUNNING_WOZMON:  .byte "Running Wozmon...", $0d, $0a, $00
 ACIA_DATA       = $8000
 ACIA_STATUS     = $8001
 ACIA_CMD        = $8002
