@@ -175,6 +175,7 @@ CURSOR_BACKSPACE:
 ; clear current line
 ; assumes cursor address is at beginning of the line
 VIDEO_CLEAR_LINE:
+    PHY
     lda CURSOR_ADDRESS_PTR
     sta SCRATCH_ADDR_RAM
     lda CURSOR_ADDRESS_PTR+1
@@ -204,6 +205,7 @@ VIDEO_CLEAR_LINE:
     beq @exit
     jmp @loop
 @exit:
+    PLY
     rts
 
 VIDEO_SCROLL_UP:
