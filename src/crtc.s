@@ -65,6 +65,7 @@ VIDEO_CLEAR:
     sta SCRATCH_ADDR_RAM+1
     jsr @video_clear_ram
 
+    ; Here we borrow VIDEO_CHAR_PTR to set color addresses
     lda #COLOR_RAM_DEFAULT_VALUE
     sta SCRATCH_DATA_RAM
     lda #<COLOR_RAM
@@ -113,6 +114,7 @@ VIDEO_CLEAR:
 ; Uses A, Y regs
 ; Also uses 
 ;   VIDEO_CHAR_PTR - used to calculate address to clear
+;    we kind of cheat and use the VIDEO_CHAR_PTR for color ram addresses as well
 ;   SCRATCH_ADDR_RAM - end address to clear to
 ;   SCRATCH_DATA_RAM - value to set ram to 
 @video_clear_ram:
@@ -135,29 +137,25 @@ VIDEO_CLEAR:
 @clear_done:
     rts
 
-; A contains a positive number of bytes to add to current position
+; A - contains a positive number of bytes to add to current position
 ; Since we are only adding 1 byte, increase can only be 256 or less
 MOVE_CURSOR_POSITION:
     PHX
     PHA
-    LDA #CRTC_CURSOR_L
-    STA CRTC_ADDRESS
-    ; LDA CRTC_REGISTER
-    PLA
-    CLC
-    ADC CRTC_REGISTER
-    BCC @no_rollover
-
-    LDX #CRTC_CURSOR_H
-    STX CRTC_ADDRESS
-    LDX CRTC_REGISTER
-    INX
-    STX CRTC_REGISTER
 
     LDX #CRTC_CURSOR_L
     STX CRTC_ADDRESS
-@no_rollover:
+    CLC
+    ADC CRTC_REGISTER
     STA CRTC_REGISTER
+
+    LDX #CRTC_CURSOR_H
+    STX CRTC_ADDRESS
+    LDA CRTC_REGISTER
+    ADC #$00
+    STA CRTC_REGISTER
+
+    PLA
     PLX
     RTS
 
@@ -335,6 +333,7 @@ VIDEO_WRITE_CHAR:
     ldx CURSOR_X_POS
     cpx #$00
     beq @video_cursor_backspace_exit
+    JSR CURSOR_BACKSPACE
     dec VIDEO_CHAR_PTR
     dec CURSOR_X_POS
     ldx VIDEO_CHAR_PTR
@@ -342,7 +341,5 @@ VIDEO_WRITE_CHAR:
     bne @video_cursor_backspace_exit
     dec VIDEO_CHAR_PTR+1    
 @video_cursor_backspace_exit:
-    LDA #-1
-    JSR CURSOR_BACKSPACE
     plx
     rts
