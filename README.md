@@ -2,7 +2,7 @@
 Based on Ben Eater's design: https://eater.net. Thanks to Ben for his great videos.
 Thanks to George Foot for his crtc VGA videos: https://www.youtube.com/@GeorgeFoot/videos
 ## What this is
-This is a WD 65C02 8-bit computer build with a VGA character display built from:
+This is the bios/firmware for the WD 65C02 8-bit computer build with a VGA character display. This design is built with:
 * TTL logic chips
 * WD 65C02 processor chip
 * WD 65C22 VIA
