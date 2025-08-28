@@ -1,6 +1,8 @@
 # Brad's 6502 Computer Build -- Work in progress!!!
 Based on Ben Eater's design: https://eater.net. Thanks to Ben for his great videos.
+
 Thanks to George Foot for his crtc VGA videos: https://www.youtube.com/@GeorgeFoot/videos
+
 ## What this is
 This is the bios/firmware for the WD 65C02 8-bit computer build with a VGA character display. This design is built with:
 * TTL logic chips
@@ -8,15 +10,18 @@ This is the bios/firmware for the WD 65C02 8-bit computer build with a VGA chara
 * WD 65C22 VIA
 * WD 65C51N ACIA
 * ROM chips
-* RAM chips
+* sRAM chips (both standard and dual-port variety)
 * ATF22V10C PLD's.
 * Motorola MC68B45 CRT controller
 * and assorted others
+
 ## Kicad schematics coming soon
+
 ## Building the code
 You will need to install cc65 suite
 https://github.com/cc65/cc65
 Run ```./make.sh```
+
 ### ATF22V10C
 Code is in the /addr_decoder and /crtc_controller folders. The .doc files have the chip pinouts at the bottom of the file.
 
