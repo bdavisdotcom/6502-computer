@@ -27,14 +27,13 @@ Run ```./make.sh```
 
 ### Memory map
 ```
+RAM = $0000 - $7FFF
 ACIA_DATA       = $8000
-ACIA_STATUS     = $8001
-ACIA_CMD        = $8002
-ACIA_CTRL       = $8003
 VIA           = $8100
 CRTC_ADDRESS = $8900
 CHAR_RAM = $9000
 COLOR_RAM = $9800
+ROM = $A000 - $FFFF
 ```
 
 ### ATF22V10C
