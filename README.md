@@ -3,6 +3,8 @@ Based on Ben Eater's design: https://eater.net. Thanks to Ben for his great vide
 
 Thanks to George Foot for his crtc VGA videos: https://www.youtube.com/@GeorgeFoot/videos
 
+Thanks to https://github.com/rweather/stackable-6502-computer for his design and samples of his PCBs!
+
 ## What this is
 This is the bios/firmware for a Ben Eater style WD 65C02 8-bit computer build with a VGA character display. This design is built with:
 * TTL logic chips
