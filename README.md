@@ -9,6 +9,7 @@ This is the bios/firmware for a Ben Eater style WD 65C02 8-bit computer build wi
 * WD 65C02 processor chip
 * WD 65C22 VIA
 * WD 65C51N ACIA
+* MAX232 RS-232
 * ROM chips
 * sRAM chips (both standard and dual-port variety)
 * ATF22V10C PLD's.
