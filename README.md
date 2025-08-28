@@ -23,6 +23,11 @@ https://github.com/cc65/cc65
 Run ```./make.sh```
 
 ### ATF22V10C
+ATF22V10C plds were used for the following purposes:
+* bus address decoding / glue logic
+* crtc chip helper
+* pixel helper
+  
 Code is in the /addr_decoder and /crtc_controller folders. The .doc files have the chip pinouts at the bottom of the file.
 
 ![20250812_173603](https://github.com/user-attachments/assets/84d05559-f159-402a-8e1a-f46dc62f8b88)
