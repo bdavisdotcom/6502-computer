@@ -1,7 +1,7 @@
 .segment "CODE"
 .ifdef EATER
-; PORTB = $8400 see bios.s
-; DDRB = $8402
+; PORTB = $8100 see bios.s
+; DDRB = $8102
 E  = %01000000
 RW = %00100000
 RS = %00010000

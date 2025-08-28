@@ -13,6 +13,8 @@ MODE            = $2B                   ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
 IN              = $0200                 ; Input buffer
 
 RESET_WOZMON:
+                ; load a with $1b so woz enters the loop correctly
+                lda #$1B
 NOTCR:
                 CMP     #$08            ; Backspace key?
                 BEQ     BACKSPACE       ; Yes.
@@ -170,12 +172,6 @@ PRHEX:
                 ADC     #$06            ; Add offset for letter.
 
 ECHO:
-                STA     ACIA_DATA       ; Output character.
-                PHA                     ; Save A.
-                LDA     #$FF            ; Initialize delay loop.
-TXDELAY:        DEC                     ; Decrement A.
-                BNE     TXDELAY         ; Until A gets to 0.
-                PLA                     ; Restore A.
-                RTS                     ; Return.
-
+                JSR CHROUT
+                RTS
 

@@ -1,0 +1,62 @@
+Name        CRTC_INTERFACE;
+PartNo      00;
+Date        07/18/2025;
+Revision:   01;
+Designer:   George Foot;
+Company:    nunya;
+Assembly    none;
+Location    none;
+Device      g22v10;
+
+pin 1 = clk; /* 12.587 mhz */
+pin 2 = clk_in; /* for asynchronous inversion */
+pin 3 = display_interval_in;
+pin 4 = vsync_in;
+pin 5 = hsync_in;
+pin 6 = cursor_in;
+
+pin 14 = !hsync_out; /*  inverted hsync */
+pin 15 = !vsync_out; /*  inverted vsync */
+pin 16 = !blanking_interval_out;
+pin 17 = !shift_load; /* shift register parallel load enable */
+
+pin 18 = pixel_clk; /* 1/2 clk */
+pin 19 = !color_clk;
+pin 20 = clk_quarter; /* 6mhz */
+pin 21 = !char_clk; /* 1/8 clock - MC68B45 character clock signal 1.5xx mhz */
+pin 22 = cursor_out;
+pin 23 = clk_half;
+
+Field Counter = [!char_clk, clk_quarter, clk_half];
+SequenceD Counter {
+    $REPEAT i = [0..7]
+        Present 'h'{i}
+            Next 'h'{(i+1) % 8};
+    $REPEND
+}
+
+/* 
+    display_enable_in is HIGH when display is enabled for signal
+    and LOW when it's in the blanking region.This is how MC6845 works
+    shift register is clocked by the input clock (pixel clock)
+*/ 
+
+/* 
+    extra ! on pins already declared as inverted
+    are intentional to cause extra delay (I think)
+*/
+
+!shift_load.d = !(Counter:6) # !display_interval_in;
+
+!hsync_out.d = (!(Counter:6) & !hsync_out) # (Counter:6 & !hsync_in);
+!vsync_out.d = (!(Counter:6) & !vsync_out) # (Counter:6 & !vsync_in);
+!blanking_interval_out.d = (!(Counter:6) & !blanking_interval_out) # (Counter:6 & !display_interval_in);
+
+pixel_clk = !clk_in;
+cursor_out.d = (!(Counter:6) & cursor_out) # (Counter:6 & cursor_in);
+
+ /* needs extra delay - color data doesn't go through a shift reg like the char generation data does, so it arrives 3 clks earlier
+    and, thus, needs extra delay to compensate for this
+    otherwise, color arrives to pixel generator earlier than the character data
+    causing the colors to show up in the middle of an earlier character */
+!color_clk.d = Counter:6 # Counter:7 # Counter:0 # Counter:1;

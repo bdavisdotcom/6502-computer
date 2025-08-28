@@ -1,0 +1,37 @@
+Name        CRTC_PIXEL_GEN;
+PartNo      00;
+Date        07/18/2025;
+Revision    01;
+Designer    Brad Davis;
+Company     nunya;
+Assembly    none;
+Location    none;
+Device      g22v10;
+
+/*
+ pin 2 Unused
+ pin 3 Unused
+ 
+ c0..c3 (pins 4, 5, 6, 7) foreground R,G,B,I
+ c4..c7 (pins 8, 9, 10, 11) background R,G,B,I
+*/
+
+/* INPUT PINS */
+Pin 1 = PIXEL_CLK;
+Pin 2 = PIXEL_IN; /* 0= pixel off, 1= pixel on */
+Pin 3 = CURSOR_IN;
+Pin [4..11] = [C0..C7];
+Pin 13 = BLANKING_INTERVAL_IN; /* in display area or not */
+
+/* OUTPUT PINS */
+Pin 14 = INTENSITY; /* intensity bit */
+Pin 15 = BLUE; /* blue bit */
+Pin 16 = GREEN; /* green bit */
+Pin 17 = RED; /* red bit */
+
+CURSOR_PIXEL = (CURSOR_IN & !PIXEL_IN) # (!CURSOR_IN & PIXEL_IN);
+
+RED.D = !BLANKING_INTERVAL_IN & ((CURSOR_PIXEL & C0) # (!CURSOR_PIXEL & C4));
+GREEN.D = !BLANKING_INTERVAL_IN & ((CURSOR_PIXEL & C1) # (!CURSOR_PIXEL & C5));
+BLUE.D = !BLANKING_INTERVAL_IN & ((CURSOR_PIXEL & C2) # (!CURSOR_PIXEL & C6));
+INTENSITY.D = !BLANKING_INTERVAL_IN & ((CURSOR_PIXEL & C3) # (!CURSOR_PIXEL & C7));

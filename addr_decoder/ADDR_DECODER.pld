@@ -1,0 +1,58 @@
+Name     ADDR_DECODER;
+PartNo   01;
+Date     07/19/2025;
+Revision 01;
+Designer Brad Davis;
+Company  Nunya;
+Assembly 01;
+Location Here;
+Device   g22V10;
+
+/*
+    CPU Address Decoder
+*/
+
+/* INPUTS */
+Pin 1  =  CLK;
+Pin [2..9] = [A15..A08];
+
+Pin 10 =  ACIA_INTERRUPT;
+Pin 11 =  VIA_INTERRUPT;
+
+/*  Pin 12 is GND */
+
+/* OUTPUTS */
+
+Pin 14 = CLK_INVERT;
+Pin 15 = !CPU_INTERRUPT;
+
+/*
+    Pin 16 UNUSED
+*/
+
+Pin 17 = !VIA0_CE;
+Pin 18 = !COLOR_RAM_CE;
+Pin 19 = !CHAR_RAM_CE;
+Pin 20 = !CRTC_CE;
+Pin 21 = !ACIA_CE;
+Pin 22 = !RAM_CE;
+Pin 23 = !ROM_CE;
+
+/* Pin 24 is VCC */
+
+FIELD ADDRESS_IO = [A15..A08];
+
+ROM_CE =      ADDRESS_IO:[A000..FFFF];      /* (A15 & A14) # (A15 & !A14 & A13); */
+COLOR_RAM_CE= ADDRESS_IO:[9800..9FFF] & CLK;      /* CLK & A15 & !A14 & !A13 & A12; */
+CHAR_RAM_CE = ADDRESS_IO:[9000..97FF] & CLK;      /* CLK & A15 & !A14 & !A13 & !A12 & A11; */
+CRTC_CE =     ADDRESS_IO:[8900..89FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08; */
+VIA0_CE =     ADDRESS_IO:[8100..81FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08; */
+ACIA_CE =     ADDRESS_IO:[8000..80FF];      /* A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08; */
+RAM_CE =      ADDRESS_IO:[0000..7FFF] & CLK; /* !A15 & CLK; */
+
+/* 
+    There is space for more I/O between VIA_0 (81ff) and CRTC (8900)
+*/ 
+
+CLK_INVERT = !CLK;
+CPU_INTERRUPT = !(ACIA_INTERRUPT & VIA_INTERRUPT);

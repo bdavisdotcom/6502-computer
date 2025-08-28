@@ -1,0 +1,84 @@
+%SIGNAL
+PIN   9 =  A8 
+PIN   8 =  A9 
+PIN   7 =  A10 
+PIN   6 =  A11 
+PIN   5 =  A12 
+PIN   4 =  A13 
+PIN   3 =  A14 
+PIN   2 =  A15 
+PIN  21 = !ACIA_CE 
+PIN  10 =  ACIA_INTERRUPT 
+PIN  19 = !CHAR_RAM_CE 
+PIN   1 =  CLK 
+PIN  14 =  CLK_INVERT 
+PIN  18 = !COLOR_RAM_CE 
+PIN  15 = !CPU_INTERRUPT 
+PIN  20 = !CRTC_CE 
+PIN  22 = !RAM_CE 
+PIN  23 = !ROM_CE 
+PIN  17 = !VIA0_CE 
+PIN  11 =  VIA_INTERRUPT 
+%END
+
+%FIELD
+FIELD ADDRESS_IO = A15,A14,A13,A12,A11,A10,A9,A8
+%END
+
+%EQUATION
+ACIA_CE =>
+    !A8 & !A9 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
+
+CHAR_RAM_CE =>
+    !A11 & A12 & !A13 & !A14 & A15 & CLK
+
+CLK_INVERT =>
+    !CLK
+
+COLOR_RAM_CE =>
+    A11 & A12 & !A13 & !A14 & A15 & CLK
+
+CPU_INTERRUPT =>
+    ACIA_INTERRUPT & VIA_INTERRUPT
+
+CRTC_CE =>
+    A8 & !A9 & !A10 & A11 & !A12 & !A13 & !A14 & A15
+
+RAM_CE =>
+    !A15 & CLK
+
+ROM_CE =>
+    A13 & A15
+  # !A13 & A14 & A15
+
+VIA0_CE =>
+    A8 & !A9 & !A10 & !A11 & !A12 & !A13 & !A14 & A15
+
+ACIA_CE.oe  =>
+    1 
+
+CHAR_RAM_CE.oe  =>
+    1 
+
+CLK_INVERT.oe  =>
+    1 
+
+COLOR_RAM_CE.oe  =>
+    1 
+
+CPU_INTERRUPT.oe  =>
+    1 
+
+CRTC_CE.oe  =>
+    1 
+
+RAM_CE.oe  =>
+    1 
+
+ROM_CE.oe  =>
+    1 
+
+VIA0_CE.oe  =>
+    1 
+
+%END
