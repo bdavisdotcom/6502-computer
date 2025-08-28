@@ -27,13 +27,13 @@ Run ```./make.sh```
 
 ### Memory map
 ```
-RAM = $0000 - $7FFF
-ACIA_DATA       = $8000
-VIA           = $8100
-CRTC_ADDRESS = $8900
-CHAR_RAM = $9000
-COLOR_RAM = $9800
-ROM = $A000 - $FFFF
+ROM_CE =      ADDRESS_IO:[A000..FFFF];      /* (A15 & A14) # (A15 & !A14 & A13); */
+COLOR_RAM_CE= ADDRESS_IO:[9800..9FFF] & CLK;      /* CLK & A15 & !A14 & !A13 & A12; */
+CHAR_RAM_CE = ADDRESS_IO:[9000..97FF] & CLK;      /* CLK & A15 & !A14 & !A13 & !A12 & A11; */
+CRTC_CE =     ADDRESS_IO:[8900..89FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & A10 & A09 & A08; */
+VIA0_CE =     ADDRESS_IO:[8100..81FF];      /*  A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & A08; */
+ACIA_CE =     ADDRESS_IO:[8000..80FF];      /* A15 & !A14 & !A13 & !A12 & !A11 & !A10 & !A09 & !A08; */
+RAM_CE =      ADDRESS_IO:[0000..7FFF] & CLK; /* !A15 & CLK; */
 ```
 
 ### ATF22V10C
