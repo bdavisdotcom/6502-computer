@@ -32,6 +32,9 @@ COLOR_RAM_DEFAULT_VALUE = $1B
 LINE_NUM_CHARS = $28 ; 40 chars per line
 MAX_LINE = $19 ; 25 lines, so 24 is last line (0-24)
 
+CURRENT_COLOR: .RES 1
+CURRENT_VIDEO_PTR: .RES 2
+
 ; Alters A, X, Y registers!
 INIT_CRTC:
     ldx #$00    ; crtc register address
