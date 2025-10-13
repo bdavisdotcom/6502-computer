@@ -25,6 +25,8 @@ You will need to install cc65 suite
 https://github.com/cc65/cc65
 Run ```./make.sh```
 
+Code entry point is in ```bios.s```
+
 ### Memory map
 ```
 ROM_CE =      ADDRESS_IO:[A000..FFFF];      /* (A15 & A14) # (A15 & !A14 & A13); */
