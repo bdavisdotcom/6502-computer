@@ -1,5 +1,5 @@
 # Brad's 6502 Computer Build -- Work in progress!!!
-Based on Ben Eater's design: https://eater.net. Thanks to Ben for his great videos.
+Based on Ben Eater's design: [https://eater.net](https://eater.net/6502). Thanks to Ben for his great videos.
 
 Thanks to George Foot for his crtc VGA videos: https://www.youtube.com/@GeorgeFoot/videos
 
