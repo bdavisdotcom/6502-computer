@@ -6,7 +6,8 @@ Thanks to George Foot for his crtc VGA videos: https://www.youtube.com/@GeorgeFo
 Thanks to https://github.com/rweather/stackable-6502-computer for his design and samples of his PCBs!
 
 ## What this is
-This is the bios/firmware for a Ben Eater style WD 65C02 8-bit computer build with a VGA character display. This design is built with:
+This is the bios/firmware for a Ben Eater style WD 65C02 8-bit computer build **TO ADD ON a VGA character based display**. This is my own custom design that I came up with after researching what others had done.
+This design is built with:
 * TTL logic chips
 * WD 65C02 processor chip
 * WD 65C22 VIA
