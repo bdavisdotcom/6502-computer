@@ -7,17 +7,27 @@ Thanks to https://github.com/rweather/stackable-6502-computer for his design and
 
 ## What this is
 This is the bios/firmware for a Ben Eater style WD 65C02 8-bit computer build **TO ADD ON a VGA character based display**. This is my own custom design that I came up with after researching what others had done.
-This design is built with:
+The VGA portion of the design is built with:
 * TTL logic chips
+* 25mhz crystal oscillator
+* binary counter to reduce clock frequency
+* D flip flops
+* shift register
+* 2x dual ported sRAM chips (one for characters and one for colors)
+* 32KB ROM chip for character bitmap data
+* 2x ATF22V10C PLD's. (one for CRT controller helper and one for colors)
+* Motorola MC68B45 CRT controller (design is based around this guy)
+
+The base Ben Eater computer is based on:
 * WD 65C02 processor chip
 * WD 65C22 VIA
 * WD 65C51N ACIA
 * MAX232 RS-232
 * ROM chips
-* sRAM chips (both standard and dual-port variety)
-* ATF22V10C PLD's.
-* Motorola MC68B45 CRT controller
-* and assorted others
+* 32KB static ram chip
+* 32KB ROM chip
+* ATF22V10C PLD for address decoding
+* and assorted other TTL logic chips
 
 ## Kicad schematics coming soon
 See images below for rough whiteboard of the VGA schematics. There's a link to Ben's base build below that.
