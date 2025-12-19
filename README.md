@@ -20,6 +20,7 @@ This design is built with:
 * and assorted others
 
 ## Kicad schematics coming soon
+See images below for rough whiteboard of the VGA schematics. There's a link to Ben's base build below that.
 
 ## Building the code
 You will need to install cc65 suite
@@ -56,5 +57,6 @@ The display glitches shown in the images have since been corrected.
 ### VGA rough shematic drawing
 ![vga schematic](https://github.com/user-attachments/assets/8ee64368-fef2-42fd-a463-b9f33bb27bad)
 
-
+### The base 6502 computer schematic from Ben Eater's site
+https://eater.net/schematics/6502-serial.png
 
